@@ -19,7 +19,7 @@ public class AuthApplicationService {
     public Mono<LoginResponse> login(LoginRequest request) {
         return loginUseCase.login(
                         new LoginCommand(
-                                request.correo(),
+                                request.email(),
                                 request.password()
                         )
                 )

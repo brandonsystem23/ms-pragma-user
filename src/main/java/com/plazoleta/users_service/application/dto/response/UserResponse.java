@@ -9,21 +9,21 @@ public record UserResponse(
 
         Long id,
 
-        String nombre,
+        String firstName,
 
-        String apellido,
+        String lastName,
 
-        String documentoIdentidad,
+        String numberDocument,
 
-        String telefono,
+        String phone,
 
-        LocalDate fechaNacimiento,
+        LocalDate birthDate,
 
-        String correo,
+        String email,
 
-        Boolean activo,
+        Boolean status,
 
-        String rol
+        String role
 
 ) {
 }

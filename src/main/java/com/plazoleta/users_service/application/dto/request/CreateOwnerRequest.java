@@ -11,37 +11,37 @@ import java.time.LocalDate;
 
 public record CreateOwnerRequest(
 
-        @NotBlank(message = "El nombre es obligatorio")
-        String nombre,
+        @NotBlank(message = "El firstName es obligatorio")
+        String firstName,
 
-        @NotBlank(message = "El apellido es obligatorio")
-        String apellido,
+        @NotBlank(message = "El lastName es obligatorio")
+        String lastName,
 
-        @NotBlank(message = "El documento de identidad es obligatorio")
+        @NotBlank(message = "El numberDocument de identidad es obligatorio")
         @Pattern(
                 regexp = "\\d+",
-                message = "El documento de identidad debe contener únicamente números"
+                message = "El numberDocument de identidad debe contener únicamente números"
         )
-        String documentoIdentidad,
+        String numberDocument,
 
-        @NotBlank(message = "El celular es obligatorio")
+        @NotBlank(message = "El phone es obligatorio")
         @Size(
                 max = 13,
-                message = "El celular no puede tener más de 13 caracteres"
+                message = "El phone no puede tener más de 13 caracteres"
         )
         @Pattern(
                 regexp = "^\\+?\\d+$",
-                message = "El celular solo puede contener números y opcionalmente iniciar con +"
+                message = "El phone solo puede contener números y opcionalmente iniciar con +"
         )
-        String celular,
+        String phone,
 
         @NotNull(message = "La fecha de nacimiento es obligatoria")
         @Adult(message = "El usuario debe tener 18 años o más")
-        LocalDate fechaNacimiento,
+        LocalDate birthDate,
 
-        @NotBlank(message = "El correo es obligatorio")
-        @Email(message = "El correo no tiene un formato válido")
-        String correo,
+        @NotBlank(message = "El email es obligatorio")
+        @Email(message = "El email no tiene un formato válido")
+        String email,
 
         @NotBlank(message = "La contraseña es obligatoria")
         String password

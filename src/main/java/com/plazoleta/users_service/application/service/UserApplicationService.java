@@ -38,40 +38,40 @@ public class UserApplicationService {
 
     private RegisterUserCommand buildOwnerCommand(CreateOwnerRequest request) {
         return new RegisterUserCommand(
-                request.nombre(),
-                request.apellido(),
-                request.documentoIdentidad(),
-                request.celular(),
-                request.fechaNacimiento(),
-                request.correo(),
+                request.firstName(),
+                request.lastName(),
+                request.numberDocument(),
+                request.phone(),
+                request.birthDate(),
+                request.email(),
                 request.password(),
-                RoleNames.PROPIETARIO
+                RoleNames.OWNER
         );
     }
 
     private RegisterUserCommand buildEmployeeCommand(CreateEmployeeRequest request) {
         return new RegisterUserCommand(
-                request.nombre(),
-                request.apellido(),
-                request.documentoIdentidad(),
-                request.celular(),
+                request.firstName(),
+                request.lastName(),
+                request.numberDocument(),
+                request.phone(),
                 null,
-                request.correo(),
+                request.email(),
                 request.password(),
-                RoleNames.EMPLEADO
+                RoleNames.EMPLOYEE
         );
     }
 
     private RegisterUserCommand buildClientCommand(CreateClientRequest request) {
         return new RegisterUserCommand(
-                request.nombre(),
-                request.apellido(),
-                request.documentoIdentidad(),
-                request.celular(),
+                request.firstName(),
+                request.lastName(),
+                request.numberDocument(),
+                request.phone(),
                 null,
-                request.correo(),
+                request.email(),
                 request.password(),
-                RoleNames.CLIENTE
+                RoleNames.CLIENT
         );
     }
 }

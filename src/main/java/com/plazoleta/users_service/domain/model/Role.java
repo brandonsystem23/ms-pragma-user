@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Rol {
+public class Role {
 
     private Long id;
 
-    private String nombre;
+    private String name;
 
-    private String descripcion;
+    private String description;
 
 }

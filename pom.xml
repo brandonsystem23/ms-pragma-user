@@ -154,6 +154,52 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<excludes>
+								<exclude>com/plazoleta/users_service/UsersServiceApplication*</exclude>
+								<exclude>com/plazoleta/users_service/application/dto/**</exclude>
+								<exclude>com/plazoleta/users_service/application/mapper/**</exclude>
+								<exclude>com/plazoleta/users_service/domain/model/**</exclude>
+								<exclude>com/plazoleta/users_service/domain/port/**</exclude>
+								<exclude>com/plazoleta/users_service/domain/model/auth/**</exclude>
+								<exclude>com/plazoleta/users_service/infrastructure/output/postgres/entity/**</exclude>
+								<exclude>com/plazoleta/users_service/infrastructure/output/postgres/repository/**</exclude>
+								<exclude>com/plazoleta/users_service/infrastructure/output/postgres/mapper/**</exclude>
+							</excludes>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.95</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+							<excludes>
+								<exclude>com/plazoleta/users_service/UsersServiceApplication*</exclude>
+								<exclude>com/plazoleta/users_service/application/dto/**</exclude>
+								<exclude>com/plazoleta/users_service/application/mapper/**</exclude>
+								<exclude>com/plazoleta/users_service/domain/model/**</exclude>
+								<exclude>com/plazoleta/users_service/domain/port/**</exclude>
+								<exclude>com/plazoleta/users_service/domain/model/auth/**</exclude>
+								<exclude>com/plazoleta/users_service/infrastructure/output/postgres/entity/**</exclude>
+								<exclude>com/plazoleta/users_service/infrastructure/output/postgres/repository/**</exclude>
+								<exclude>com/plazoleta/users_service/infrastructure/output/postgres/mapper/**</exclude>
+							</excludes>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

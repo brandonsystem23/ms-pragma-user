@@ -11,14 +11,14 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("roles")
-public class RolEntity {
+@Table("role")
+public class RoleEntity {
 
     @Id
     private Long id;
 
-    private String nombre;
+    private String name;
 
-    private String descripcion;
+    private String description;
 
 }

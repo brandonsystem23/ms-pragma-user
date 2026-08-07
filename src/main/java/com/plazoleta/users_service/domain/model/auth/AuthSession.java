@@ -7,8 +7,8 @@ public record AuthSession(
 
         Long userId,
         String role,
-        String documento,
-        String telefono,
-        String correo
+        String numberDocument,
+        String phone,
+        String email
 ) {
 }

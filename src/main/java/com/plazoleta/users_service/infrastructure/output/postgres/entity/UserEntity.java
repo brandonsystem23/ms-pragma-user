@@ -14,31 +14,33 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("usuarios")
-public class UsuarioEntity {
+@Table("users")
+public class UserEntity {
 
     @Id
     private Long id;
 
-    private String nombre;
+    @Column("first_name")
+    private String firstName;
 
-    private String apellido;
+    @Column("last_name")
+    private String lastName;
 
-    @Column("documento_identidad")
-    private String documentoIdentidad;
+    @Column("number_document")
+    private String numberDocument;
 
-    private String telefono;
+    private String phone;
 
-    @Column("fecha_nacimiento")
-    private LocalDate fechaNacimiento;
+    @Column("birth_date")
+    private LocalDate birthDate;
 
-    private String correo;
+    private String email;
 
     private String password;
 
-    private Boolean activo;
+    private Boolean status;
 
-    @Column("rol_id")
-    private Long rolId;
+    @Column("role_id")
+    private Long roleId;
 
 }

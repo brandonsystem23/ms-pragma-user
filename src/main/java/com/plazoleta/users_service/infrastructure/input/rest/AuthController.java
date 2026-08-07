@@ -33,7 +33,7 @@ public class AuthController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Cerrar sesión", description = "Invalida el token actual eliminando la sesión en Redis")
     public Mono<Void> logout(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
-        String token = BearerTokenExtractor.extract(authorizationHeader);
-        return logoutApplicationService.logout(token);
+        return Mono.fromCallable(() -> BearerTokenExtractor.extract(authorizationHeader))
+                .flatMap(logoutApplicationService::logout);
     }
 }

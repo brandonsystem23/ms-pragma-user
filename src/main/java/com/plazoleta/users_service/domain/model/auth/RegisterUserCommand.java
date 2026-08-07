@@ -4,12 +4,12 @@ import java.time.LocalDate;
 
 public record RegisterUserCommand(
 
-        String nombre,
-        String apellido,
-        String documentoIdentidad,
-        String telefono,
-        LocalDate fechaNacimiento,
-        String correo,
+        String firstName,
+        String lastName,
+        String numberDocument,
+        String phone,
+        LocalDate birthDate,
+        String email,
         String password,
         String roleName
 ) {

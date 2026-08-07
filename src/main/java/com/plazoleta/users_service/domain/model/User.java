@@ -11,26 +11,26 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Usuario {
+public class User {
 
     private Long id;
 
-    private String nombre;
+    private String firstName;
 
-    private String apellido;
+    private String lastName;
 
-    private String documentoIdentidad;
+    private String numberDocument;
 
-    private String telefono;
+    private String phone;
 
-    private LocalDate fechaNacimiento;
+    private LocalDate birthDate;
 
-    private String correo;
+    private String email;
 
     private String password;
 
-    private Boolean activo;
+    private Boolean status;
 
-    private Rol rol;
+    private Role role;
 
 }

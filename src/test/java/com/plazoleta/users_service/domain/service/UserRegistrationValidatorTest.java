@@ -3,8 +3,8 @@ package com.plazoleta.users_service.domain.service;
 import com.plazoleta.users_service.domain.exception.DuplicateDocumentException;
 import com.plazoleta.users_service.domain.exception.DuplicateEmailException;
 import com.plazoleta.users_service.domain.exception.RoleNotFoundException;
-import com.plazoleta.users_service.domain.model.Rol;
-import com.plazoleta.users_service.domain.port.out.UsuarioPersistencePort;
+import com.plazoleta.users_service.domain.model.Role;
+import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
@@ -15,28 +15,28 @@ import static org.mockito.Mockito.when;
 
 class UserRegistrationValidatorTest {
 
-    private UsuarioPersistencePort usuarioPersistencePort;
+    private UserPersistencePort usuarioPersistencePort;
     private UserRegistrationValidator validator;
 
     @BeforeEach
     void setUp() {
-        usuarioPersistencePort = mock(UsuarioPersistencePort.class);
+        usuarioPersistencePort = mock(UserPersistencePort.class);
         validator = new UserRegistrationValidator(usuarioPersistencePort);
     }
 
     @Test
     void shouldValidateSuccessfully() {
-        Rol rol = Rol.builder()
+        Role rol = Role.builder()
                 .id(1L)
-                .nombre("CLIENTE")
-                .descripcion("Rol cliente")
+                .name("CLIENTE")
+                .description("Rol cliente")
                 .build();
 
-        when(usuarioPersistencePort.existsByDocumento("123456"))
+        when(usuarioPersistencePort.existsByNumberDocument("123456"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.existsByCorreo("test@test.com"))
+        when(usuarioPersistencePort.existsByEmail("test@test.com"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.findRoleByNombre("CLIENTE"))
+        when(usuarioPersistencePort.findRoleByFirstName("CLIENTE"))
                 .thenReturn(Mono.just(rol));
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
@@ -46,17 +46,17 @@ class UserRegistrationValidatorTest {
 
     @Test
     void shouldFailWhenDocumentAlreadyExists() {
-        Rol rol = Rol.builder()
+        Role rol = Role.builder()
                 .id(1L)
-                .nombre("CLIENTE")
-                .descripcion("Rol cliente")
+                .name("CLIENTE")
+                .description("Rol cliente")
                 .build();
 
-        when(usuarioPersistencePort.existsByDocumento("123456"))
+        when(usuarioPersistencePort.existsByNumberDocument("123456"))
                 .thenReturn(Mono.just(true));
-        when(usuarioPersistencePort.existsByCorreo("test@test.com"))
+        when(usuarioPersistencePort.existsByEmail("test@test.com"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.findRoleByNombre("CLIENTE"))
+        when(usuarioPersistencePort.findRoleByFirstName("CLIENTE"))
                 .thenReturn(Mono.just(rol));
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
@@ -66,17 +66,17 @@ class UserRegistrationValidatorTest {
 
     @Test
     void shouldFailWhenEmailAlreadyExists() {
-        Rol rol = Rol.builder()
+        Role rol = Role.builder()
                 .id(1L)
-                .nombre("CLIENTE")
-                .descripcion("Rol cliente")
+                .name("CLIENTE")
+                .description("Rol cliente")
                 .build();
 
-        when(usuarioPersistencePort.existsByDocumento("123456"))
+        when(usuarioPersistencePort.existsByNumberDocument("123456"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.existsByCorreo("test@test.com"))
+        when(usuarioPersistencePort.existsByEmail("test@test.com"))
                 .thenReturn(Mono.just(true));
-        when(usuarioPersistencePort.findRoleByNombre("CLIENTE"))
+        when(usuarioPersistencePort.findRoleByFirstName("CLIENTE"))
                 .thenReturn(Mono.just(rol));
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
@@ -86,11 +86,11 @@ class UserRegistrationValidatorTest {
 
     @Test
     void shouldFailWhenRoleDoesNotExist() {
-        when(usuarioPersistencePort.existsByDocumento("123456"))
+        when(usuarioPersistencePort.existsByNumberDocument("123456"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.existsByCorreo("test@test.com"))
+        when(usuarioPersistencePort.existsByEmail("test@test.com"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.findRoleByNombre("CLIENTE"))
+        when(usuarioPersistencePort.findRoleByFirstName("CLIENTE"))
                 .thenReturn(Mono.empty());
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))

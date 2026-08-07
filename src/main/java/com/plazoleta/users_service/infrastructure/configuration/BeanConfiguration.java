@@ -4,7 +4,7 @@ import com.plazoleta.users_service.domain.port.in.LoginUseCase;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
 import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
-import com.plazoleta.users_service.domain.port.out.UsuarioPersistencePort;
+import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
 import com.plazoleta.users_service.domain.service.LoginService;
 import com.plazoleta.users_service.domain.service.RegisterUserService;
 import org.springframework.context.annotation.Bean;
@@ -17,12 +17,12 @@ public class BeanConfiguration {
 
     @Bean
     public LoginUseCase loginUseCase(
-            UsuarioPersistencePort usuarioPersistencePort,
+            UserPersistencePort userPersistencePort,
             PasswordEncoderPort passwordEncoderPort,
             AuthSessionPort authSessionPort
     ) {
         return new LoginService(
-                usuarioPersistencePort,
+                userPersistencePort,
                 passwordEncoderPort,
                 authSessionPort
         );
@@ -30,11 +30,11 @@ public class BeanConfiguration {
 
     @Bean
     public RegisterUserUseCase registerUserUseCase(
-            UsuarioPersistencePort usuarioPersistencePort,
+            UserPersistencePort userPersistencePort,
             PasswordEncoderPort passwordEncoderPort
     ) {
         return new RegisterUserService(
-                usuarioPersistencePort,
+                userPersistencePort,
                 passwordEncoderPort
         );
     }

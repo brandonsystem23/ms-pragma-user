@@ -3,34 +3,34 @@ package com.plazoleta.users_service.domain.service;
 import com.plazoleta.users_service.domain.exception.DuplicateDocumentException;
 import com.plazoleta.users_service.domain.exception.DuplicateEmailException;
 import com.plazoleta.users_service.domain.exception.RoleNotFoundException;
-import com.plazoleta.users_service.domain.model.Rol;
-import com.plazoleta.users_service.domain.port.out.UsuarioPersistencePort;
+import com.plazoleta.users_service.domain.model.Role;
+import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
 import reactor.core.publisher.Mono;
 
 public class UserRegistrationValidator {
 
-    private final UsuarioPersistencePort usuarioPersistencePort;
+    private final UserPersistencePort userPersistencePort;
 
-    public UserRegistrationValidator(UsuarioPersistencePort usuarioPersistencePort) {
-        this.usuarioPersistencePort = usuarioPersistencePort;
+    public UserRegistrationValidator(UserPersistencePort userPersistencePort) {
+        this.userPersistencePort = userPersistencePort;
     }
 
-    public Mono<Rol> validate(String documentoIdentidad, String correo, String roleName) {
-        return validateDocument(documentoIdentidad)
-                .then(validateEmail(correo))
-                .then(usuarioPersistencePort.findRoleByNombre(roleName))
+    public Mono<Role> validate(String numberDocument, String email, String roleName) {
+        return validateDocument(numberDocument)
+                .then(validateEmail(email))
+                .then(userPersistencePort.findRoleByFirstName(roleName))
                 .switchIfEmpty(Mono.error(new RoleNotFoundException(roleName)));
     }
 
-    private Mono<Void> validateDocument(String documento) {
-        return usuarioPersistencePort.existsByDocumento(documento)
+    private Mono<Void> validateDocument(String numberDocument) {
+        return userPersistencePort.existsByNumberDocument(numberDocument)
                 .flatMap(exists -> exists
                         ? Mono.error(new DuplicateDocumentException())
                         : Mono.empty());
     }
 
-    private Mono<Void> validateEmail(String correo) {
-        return usuarioPersistencePort.existsByCorreo(correo)
+    private Mono<Void> validateEmail(String email) {
+        return userPersistencePort.existsByEmail(email)
                 .flatMap(exists -> exists
                         ? Mono.error(new DuplicateEmailException())
                         : Mono.empty());
