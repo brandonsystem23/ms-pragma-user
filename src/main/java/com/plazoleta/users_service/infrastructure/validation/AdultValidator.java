@@ -1,0 +1,26 @@
+package com.plazoleta.users_service.infrastructure.validation;
+
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+
+import java.time.LocalDate;
+import java.time.Period;
+
+public class AdultValidator
+        implements ConstraintValidator<Adult, LocalDate> {
+
+    @Override
+    public boolean isValid(
+            LocalDate fechaNacimiento,
+            ConstraintValidatorContext context) {
+
+        if (fechaNacimiento == null) {
+            return true;
+        }
+
+        return Period.between(
+                fechaNacimiento,
+                LocalDate.now()
+        ).getYears() >= 18;
+    }
+}
