@@ -1,6 +1,6 @@
 package com.plazoleta.users_service.infrastructure.security.adapter;
 
-import com.plazoleta.users_service.domain.spi.PasswordEncoderPort;
+import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -17,14 +17,7 @@ public class PasswordEncoderAdapter implements PasswordEncoderPort {
     }
 
     @Override
-    public boolean matches(String rawPassword,
-                           String encodedPassword) {
-
-        return passwordEncoder.matches(
-                rawPassword,
-                encodedPassword
-        );
-
+    public boolean matches(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
-
 }

@@ -2,7 +2,7 @@ package com.plazoleta.users_service.infrastructure.output.postgres.adapter;
 
 import com.plazoleta.users_service.domain.model.Rol;
 import com.plazoleta.users_service.domain.model.Usuario;
-import com.plazoleta.users_service.domain.spi.UsuarioPersistencePort;
+import com.plazoleta.users_service.domain.port.out.UsuarioPersistencePort;
 import com.plazoleta.users_service.infrastructure.output.postgres.entity.RolEntity;
 import com.plazoleta.users_service.infrastructure.output.postgres.entity.UsuarioEntity;
 import com.plazoleta.users_service.infrastructure.output.postgres.mapper.UsuarioEntityMapper;
@@ -21,69 +21,45 @@ public class UsuarioPersistenceAdapter implements UsuarioPersistencePort {
     private final UsuarioEntityMapper usuarioEntityMapper;
 
     @Override
-    public Mono<Usuario> findByDocumento(String documento) {
-
-        return usuarioRepository
-                .findByDocumentoIdentidad(documento)
-                .flatMap(usuarioEntity ->
-                        rolRepository
-                                .findById(usuarioEntity.getRolId())
-                                .map(rolEntity ->
-                                        usuarioEntityMapper.toDomain(
-                                                usuarioEntity,
-                                                rolEntity
-                                        )
-                                )
-                );
+    public Mono<Usuario> findByCorreo(String correo) {
+        return usuarioRepository.findByCorreo(correo)
+                .flatMap(this::mapUsuarioWithRole);
     }
 
     @Override
     public Mono<Boolean> existsByCorreo(String correo) {
-
         return usuarioRepository.existsByCorreo(correo);
     }
 
     @Override
     public Mono<Boolean> existsByDocumento(String documento) {
-
         return usuarioRepository.existsByDocumentoIdentidad(documento);
     }
 
     @Override
     public Mono<Rol> findRoleByNombre(String nombre) {
-
-        return rolRepository
-                .findByNombre(nombre)
+        return rolRepository.findByNombre(nombre)
                 .map(this::mapRolToDomain);
     }
 
     @Override
     public Mono<Usuario> save(Usuario usuario) {
+        UsuarioEntity usuarioEntity = usuarioEntityMapper.toEntity(usuario);
 
-        UsuarioEntity usuarioEntity =
-                usuarioEntityMapper.toEntity(usuario);
+        return usuarioRepository.save(usuarioEntity)
+                .flatMap(this::mapUsuarioWithRole);
+    }
 
-        return usuarioRepository
-                .save(usuarioEntity)
-                .flatMap(savedEntity ->
-                        rolRepository
-                                .findById(savedEntity.getRolId())
-                                .map(rolEntity ->
-                                        usuarioEntityMapper.toDomain(
-                                                savedEntity,
-                                                rolEntity
-                                        )
-                                )
-                );
+    private Mono<Usuario> mapUsuarioWithRole(UsuarioEntity usuarioEntity) {
+        return rolRepository.findById(usuarioEntity.getRolId())
+                .map(rolEntity -> usuarioEntityMapper.toDomain(usuarioEntity, rolEntity));
     }
 
     private Rol mapRolToDomain(RolEntity rolEntity) {
-
         return Rol.builder()
                 .id(rolEntity.getId())
                 .nombre(rolEntity.getNombre())
                 .descripcion(rolEntity.getDescripcion())
                 .build();
     }
-
 }

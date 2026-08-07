@@ -2,15 +2,11 @@ package com.plazoleta.users_service.infrastructure.input.rest;
 
 import com.plazoleta.users_service.application.dto.request.LoginRequest;
 import com.plazoleta.users_service.application.dto.response.LoginResponse;
-import com.plazoleta.users_service.application.handler.LoginHandler;
+import com.plazoleta.users_service.domain.model.auth.LoginCommand;
+import com.plazoleta.users_service.domain.port.in.LoginUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -18,21 +14,21 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final LoginHandler loginHandler;
+    private final LoginUseCase loginUseCase;
 
     @PostMapping("/login")
     public Mono<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-
-        return loginHandler.login(request);
-
+        return loginUseCase.login(
+                        new LoginCommand(
+                                request.correo(),
+                                request.password()
+                        )
+                )
+                .map(authResult -> LoginResponse.builder()
+                        .token(authResult.token())
+                        .tokenType(authResult.tokenType())
+                        .userId(authResult.userId())
+                        .role(authResult.role())
+                        .build());
     }
-
-    @GetMapping("/me")
-    public Mono<String> me(Authentication authentication){
-
-        return Mono.just(authentication.getName());
-
-    }
-
-
 }

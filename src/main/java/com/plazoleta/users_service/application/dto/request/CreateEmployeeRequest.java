@@ -1,15 +1,11 @@
 package com.plazoleta.users_service.application.dto.request;
 
-import com.plazoleta.users_service.infrastructure.validation.Adult;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDate;
-
-public record CreateOwnerRequest(
+public record CreateEmployeeRequest(
 
         @NotBlank(message = "El nombre es obligatorio")
         String nombre,
@@ -34,10 +30,6 @@ public record CreateOwnerRequest(
                 message = "El celular solo puede contener números y opcionalmente iniciar con +"
         )
         String celular,
-
-        @NotNull(message = "La fecha de nacimiento es obligatoria")
-        @Adult(message = "El usuario debe tener 18 años o más")
-        LocalDate fechaNacimiento,
 
         @NotBlank(message = "El correo es obligatorio")
         @Email(message = "El correo no tiene un formato válido")

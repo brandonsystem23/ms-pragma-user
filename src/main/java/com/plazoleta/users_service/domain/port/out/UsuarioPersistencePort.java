@@ -1,4 +1,4 @@
-package com.plazoleta.users_service.domain.spi;
+package com.plazoleta.users_service.domain.port.out;
 
 import com.plazoleta.users_service.domain.model.Rol;
 import com.plazoleta.users_service.domain.model.Usuario;
@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 
 public interface UsuarioPersistencePort {
 
-    Mono<Usuario> findByDocumento(String documento);
+    Mono<Usuario> findByCorreo(String correo);
 
     Mono<Boolean> existsByCorreo(String correo);
 
@@ -15,5 +15,4 @@ public interface UsuarioPersistencePort {
     Mono<Rol> findRoleByNombre(String nombre);
 
     Mono<Usuario> save(Usuario usuario);
-
 }

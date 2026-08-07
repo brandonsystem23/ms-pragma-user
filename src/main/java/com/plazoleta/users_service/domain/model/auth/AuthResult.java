@@ -1,4 +1,4 @@
-package com.plazoleta.users_service.domain.usecase.auth;
+package com.plazoleta.users_service.domain.model.auth;
 
 import lombok.Builder;
 
@@ -6,10 +6,8 @@ import lombok.Builder;
 public record AuthResult(
 
         String token,
-
         String tokenType,
-
         Long userId,
-
-        String role ) {
+        String role
+) {
 }

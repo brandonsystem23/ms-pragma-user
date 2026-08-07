@@ -1,11 +1,13 @@
 package com.plazoleta.users_service.application.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Email;
 
 public record LoginRequest(
 
-        @NotBlank(message = "El documento es obligatorio")
-        String documentoIdentidad,
+        @NotBlank(message = "El correo es obligatorio")
+        @Email(message = "El correo no tiene un formato válido")
+        String correo,
 
         @NotBlank(message = "La contraseña es obligatoria")
         String password
