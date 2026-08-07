@@ -47,7 +47,18 @@ public class UsuarioPersistenceAdapter implements UsuarioPersistencePort {
         UsuarioEntity usuarioEntity = usuarioEntityMapper.toEntity(usuario);
 
         return usuarioRepository.save(usuarioEntity)
-                .flatMap(this::mapUsuarioWithRole);
+                .map(savedEntity -> Usuario.builder()
+                        .id(savedEntity.getId())
+                        .nombre(savedEntity.getNombre())
+                        .apellido(savedEntity.getApellido())
+                        .documentoIdentidad(savedEntity.getDocumentoIdentidad())
+                        .telefono(savedEntity.getTelefono())
+                        .fechaNacimiento(savedEntity.getFechaNacimiento())
+                        .correo(savedEntity.getCorreo())
+                        .password(savedEntity.getPassword())
+                        .activo(savedEntity.getActivo())
+                        .rol(usuario.getRol())
+                        .build());
     }
 
     private Mono<Usuario> mapUsuarioWithRole(UsuarioEntity usuarioEntity) {

@@ -50,6 +50,11 @@ public class RedisAuthSessionAdapter implements AuthSessionPort {
                 .flatMap(this::deserialize);
     }
 
+    @Override
+    public Mono<Void> deleteByToken(String token) {
+        return redisTemplate.delete(PREFIX + token).then();
+    }
+
     private Mono<String> serialize(AuthSession authSession) {
         try {
             return Mono.just(objectMapper.writeValueAsString(authSession));

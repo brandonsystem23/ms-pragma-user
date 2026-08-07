@@ -9,4 +9,6 @@ public interface AuthSessionPort {
 
     Mono<AuthSession> findByToken(String token);
 
+    Mono<Void> deleteByToken(String token);
+
 }
