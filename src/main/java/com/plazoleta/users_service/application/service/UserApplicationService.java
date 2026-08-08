@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 public class UserApplicationService {
@@ -20,24 +22,7 @@ public class UserApplicationService {
     private final UserDtoMapper userDtoMapper;
 
     public Mono<UserResponse> createOwner(CreateOwnerRequest request) {
-        return register(buildOwnerCommand(request));
-    }
-
-    public Mono<UserResponse> createEmployee(CreateEmployeeRequest request) {
-        return register(buildEmployeeCommand(request));
-    }
-
-    public Mono<UserResponse> selfRegisterClient(CreateClientRequest request) {
-        return register(buildClientCommand(request));
-    }
-
-    private Mono<UserResponse> register(RegisterUserCommand command) {
-        return registerUserUseCase.register(command)
-                .map(userDtoMapper::toResponse);
-    }
-
-    private RegisterUserCommand buildOwnerCommand(CreateOwnerRequest request) {
-        return new RegisterUserCommand(
+        return register(buildCommand(
                 request.firstName(),
                 request.lastName(),
                 request.numberDocument(),
@@ -46,11 +31,11 @@ public class UserApplicationService {
                 request.email(),
                 request.password(),
                 RoleNames.OWNER
-        );
+        ));
     }
 
-    private RegisterUserCommand buildEmployeeCommand(CreateEmployeeRequest request) {
-        return new RegisterUserCommand(
+    public Mono<UserResponse> createEmployee(CreateEmployeeRequest request) {
+        return register(buildCommand(
                 request.firstName(),
                 request.lastName(),
                 request.numberDocument(),
@@ -59,11 +44,11 @@ public class UserApplicationService {
                 request.email(),
                 request.password(),
                 RoleNames.EMPLOYEE
-        );
+        ));
     }
 
-    private RegisterUserCommand buildClientCommand(CreateClientRequest request) {
-        return new RegisterUserCommand(
+    public Mono<UserResponse> selfRegisterClient(CreateClientRequest request) {
+        return register(buildCommand(
                 request.firstName(),
                 request.lastName(),
                 request.numberDocument(),
@@ -72,6 +57,33 @@ public class UserApplicationService {
                 request.email(),
                 request.password(),
                 RoleNames.CLIENT
+        ));
+    }
+
+    private Mono<UserResponse> register(RegisterUserCommand command) {
+        return registerUserUseCase.register(command)
+                .map(userDtoMapper::toResponse);
+    }
+
+    private RegisterUserCommand buildCommand(
+            String firstName,
+            String lastName,
+            String numberDocument,
+            String phone,
+            LocalDate birthDate,
+            String email,
+            String password,
+            String roleName
+    ) {
+        return new RegisterUserCommand(
+                firstName,
+                lastName,
+                numberDocument,
+                phone,
+                birthDate,
+                email,
+                password,
+                roleName
         );
     }
 }

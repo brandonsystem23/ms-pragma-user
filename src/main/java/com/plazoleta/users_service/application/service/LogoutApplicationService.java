@@ -1,6 +1,6 @@
 package com.plazoleta.users_service.application.service;
 
-import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
+import com.plazoleta.users_service.domain.port.in.LogoutUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -9,9 +9,10 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class LogoutApplicationService {
 
-    private final AuthSessionPort authSessionPort;
+    private final LogoutUseCase logoutUseCase;
 
     public Mono<Void> logout(String token) {
-        return authSessionPort.deleteByToken(token);
+        return logoutUseCase.logout(token);
     }
 }
+

@@ -20,9 +20,10 @@ auth:
 
 logging:
   level:
+    root: INFO
+    org.springframework.security: INFO
     org.springframework.r2dbc: DEBUG
-    org.springframework.security: DEBUG
-    io.r2dbc.postgresql: DEBUG
+    io.r2dbc.postgresql: INFO
 
 springdoc:
   api-docs:

@@ -63,14 +63,14 @@ public class UserPersistenceAdapter implements UserPersistencePort {
 
     private Mono<User> mapUserWithRole(UserEntity userEntity) {
         return roleRepository.findById(userEntity.getRoleId())
-                .map(rolEntity -> userEntityMapper.toDomain(userEntity, rolEntity));
+                .map(roleEntity -> userEntityMapper.toDomain(userEntity, roleEntity));
     }
 
-    private Role mapRoleToDomain(RoleEntity rolEntity) {
+    private Role mapRoleToDomain(RoleEntity roleEntity) {
         return Role.builder()
-                .id(rolEntity.getId())
-                .name(rolEntity.getName())
-                .description(rolEntity.getDescription())
+                .id(roleEntity.getId())
+                .name(roleEntity.getName())
+                .description(roleEntity.getDescription())
                 .build();
     }
 }

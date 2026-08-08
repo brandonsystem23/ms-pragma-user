@@ -1,7 +1,5 @@
 package com.plazoleta.users_service.infrastructure.input.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plazoleta.users_service.domain.exception.DuplicateDocumentException;
 import com.plazoleta.users_service.domain.exception.DuplicateEmailException;
 import com.plazoleta.users_service.domain.exception.InvalidCredentialsException;
@@ -9,337 +7,179 @@ import com.plazoleta.users_service.domain.exception.RoleNotFoundException;
 import com.plazoleta.users_service.domain.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+import org.springframework.mock.web.server.MockServerWebExchange;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.lang.reflect.Method;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
-
-import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.mock.web.server.MockServerWebExchange;
 
 class GlobalExceptionHandlerTest {
 
-    @Mock
-    private ObjectMapper objectMapper;
-
     private GlobalExceptionHandler handler;
-
     private ServerWebExchange exchange;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        handler = new GlobalExceptionHandler(objectMapper);
-
-        MockServerHttpRequest request = MockServerHttpRequest
-                .get("/api/users")
-                .build();
-
-        exchange = MockServerWebExchange.from(request);
-    }
-
-    @Test
-    void shouldHandleUserNotFoundException() throws Exception {
-
-        UserNotFoundException exception = mock(UserNotFoundException.class);
-
-        when(exception.getMessage())
-                .thenReturn("Usuario no encontrado");
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("""
-                        {
-                            "status":404,
-                            "error":"Not Found",
-                            "message":"Usuario no encontrado",
-                            "path":"/api/users"
-                        }
-                        """.getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.NOT_FOUND,
-                exchange.getResponse().getStatusCode()
-        );
-
-        verify(objectMapper).writeValueAsBytes(any(ErrorResponse.class));
-    }
-
-    @Test
-    void shouldHandleInvalidCredentialsException() throws Exception {
-
-        InvalidCredentialsException exception =
-                mock(InvalidCredentialsException.class);
-
-        when(exception.getMessage())
-                .thenReturn("Credenciales inválidas");
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("{}".getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.UNAUTHORIZED,
-                exchange.getResponse().getStatusCode()
-        );
-
-        verify(objectMapper).writeValueAsBytes(any(ErrorResponse.class));
-    }
-
-    @Test
-    void shouldHandleBadCredentialsException() throws Exception {
-
-        BadCredentialsException exception =
-                mock(BadCredentialsException.class);
-
-        when(exception.getMessage())
-                .thenReturn("Bad credentials");
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("{}".getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.UNAUTHORIZED,
-                exchange.getResponse().getStatusCode()
+        handler = new GlobalExceptionHandler();
+        exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/api/v1/test").build()
         );
     }
 
     @Test
-    void shouldHandleDuplicateEmailException() throws Exception {
+    void shouldHandleUserNotFound() {
+        ErrorResponse response = handler.handleUserNotFound(new UserNotFoundException(), exchange);
 
-        DuplicateEmailException exception =
-                mock(DuplicateEmailException.class);
-
-        when(exception.getMessage())
-                .thenReturn("El email ya está registrado");
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("{}".getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.CONFLICT,
-                exchange.getResponse().getStatusCode()
-        );
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.status());
+        assertEquals("Not Found", response.error());
+        assertEquals("Usuario no encontrado", response.message());
+        assertEquals("/api/v1/test", response.path());
     }
 
     @Test
-    void shouldHandleDuplicateDocumentException() throws Exception {
+    void shouldHandleInvalidCredentials() {
+        ErrorResponse response = handler.handleInvalidCredentials(new InvalidCredentialsException(), exchange);
 
-        DuplicateDocumentException exception =
-                mock(DuplicateDocumentException.class);
-
-        when(exception.getMessage())
-                .thenReturn("El numberDocument ya está registrado");
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("{}".getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.CONFLICT,
-                exchange.getResponse().getStatusCode()
-        );
+        assertEquals(HttpStatus.UNAUTHORIZED.value(), response.status());
+        assertEquals("Unauthorized", response.error());
+        assertEquals("Credenciales inválidas", response.message());
     }
 
     @Test
-    void shouldHandleRoleNotFoundException() throws Exception {
-
-        RoleNotFoundException exception =
-                mock(RoleNotFoundException.class);
-
-        when(exception.getMessage())
-                .thenReturn("Rol no encontrado");
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("{}".getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                exchange.getResponse().getStatusCode()
+    void shouldHandleBadCredentials() {
+        ErrorResponse response = handler.handleInvalidCredentials(
+                new BadCredentialsException("Credenciales incorrectas"),
+                exchange
         );
+
+        assertEquals(HttpStatus.UNAUTHORIZED.value(), response.status());
+        assertEquals("Unauthorized", response.error());
+        assertEquals("Credenciales incorrectas", response.message());
     }
 
     @Test
-    void shouldHandleAccessDeniedException() throws Exception {
+    void shouldHandleDuplicateEmail() {
+        ErrorResponse response = handler.handleDuplicateData(new DuplicateEmailException(), exchange);
 
-        AccessDeniedException exception =
-                mock(AccessDeniedException.class);
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("{}".getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.FORBIDDEN,
-                exchange.getResponse().getStatusCode()
-        );
-
-        verify(objectMapper).writeValueAsBytes(any(ErrorResponse.class));
+        assertEquals(HttpStatus.CONFLICT.value(), response.status());
+        assertEquals("Conflict", response.error());
+        assertEquals("El email ya está registrado", response.message());
     }
 
     @Test
-    void shouldHandleWebExchangeBindException() throws Exception {
+    void shouldHandleDuplicateDocument() {
+        ErrorResponse response = handler.handleDuplicateData(new DuplicateDocumentException(), exchange);
 
-        WebExchangeBindException exception =
-                mock(WebExchangeBindException.class);
-
-        FieldError fieldError = new FieldError(
-                "userRequest",
-                "email",
-                "El email electrónico no es válido"
-        );
-
-        when(exception.getFieldErrors())
-                .thenReturn(List.of(fieldError));
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("{}".getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.BAD_REQUEST,
-                exchange.getResponse().getStatusCode()
-        );
-
-        verify(exception).getFieldErrors();
-        verify(objectMapper).writeValueAsBytes(any(ErrorResponse.class));
+        assertEquals(HttpStatus.CONFLICT.value(), response.status());
+        assertEquals("Conflict", response.error());
+        assertEquals("El numberDocument de identidad ya está registrado", response.message());
     }
 
     @Test
-    void shouldHandleIllegalArgumentException() throws Exception {
-
-        IllegalArgumentException exception =
-                mock(IllegalArgumentException.class);
-
-        when(exception.getMessage())
-                .thenReturn("Argumento inválido");
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("{}".getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.BAD_REQUEST,
-                exchange.getResponse().getStatusCode()
+    void shouldHandleRoleNotFound() {
+        ErrorResponse response = handler.handleRoleNotFound(
+                new RoleNotFoundException("ADMIN"),
+                exchange
         );
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.status());
+        assertEquals("Not Found", response.error());
+        assertEquals("El role ADMIN no existe", response.message());
     }
 
     @Test
-    void shouldHandleUnknownException() throws Exception {
-
-        RuntimeException exception =
-                new RuntimeException("Error inesperado");
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("{}".getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                exchange.getResponse().getStatusCode()
+    void shouldHandleAccessDenied() {
+        ErrorResponse response = handler.handleAccessDenied(
+                new AccessDeniedException("Acceso denegado"),
+                exchange
         );
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), response.status());
+        assertEquals("Forbidden", response.error());
+        assertEquals("No tienes permisos para acceder a este recurso", response.message());
     }
 
     @Test
-    void shouldHandleObjectMapperSerializationException() throws Exception {
-
-        RuntimeException exception =
-                new RuntimeException("Error inesperado");
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenThrow(new JsonProcessingException("Error serializando") {
-                });
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertEquals(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                exchange.getResponse().getStatusCode()
+    void shouldHandleIllegalArgument() {
+        ErrorResponse response = handler.handleIllegalArgument(
+                new IllegalArgumentException("Authorization header inválido"),
+                exchange
         );
 
-        verify(objectMapper)
-                .writeValueAsBytes(any(ErrorResponse.class));
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.status());
+        assertEquals("Bad Request", response.error());
+        assertEquals("Authorization header inválido", response.message());
     }
 
     @Test
-    void shouldSetContentTypeToApplicationJson() throws Exception {
-
-        RuntimeException exception =
-                new RuntimeException("Error");
-
-        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
-                .thenReturn("{}".getBytes(StandardCharsets.UTF_8));
-
-        Mono<Void> result = handler.handle(exchange, exception);
-
-        StepVerifier.create(result)
-                .verifyComplete();
-
-        assertTrue(
-                exchange.getResponse()
-                        .getHeaders()
-                        .getFirst("Content-Type")
-                        .contains("application/json")
+    void shouldHandleGenericException() {
+        ErrorResponse response = handler.handleGenericException(
+                new RuntimeException("Error inesperado"),
+                exchange
         );
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.status());
+        assertEquals("Internal Server Error", response.error());
+        assertEquals("Ocurrió un error interno en el servidor", response.message());
+    }
+
+    @Test
+    void shouldHandleValidationErrors() throws Exception {
+        Object target = new TestRequest();
+        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(target, "testRequest");
+        bindingResult.addError(new FieldError("testRequest", "email", "El email no tiene un formato válido"));
+        bindingResult.addError(new FieldError("testRequest", "password", "La contraseña es obligatoria"));
+
+        Method method = TestController.class.getDeclaredMethod("testMethod", TestRequest.class);
+
+        WebExchangeBindException exception = new WebExchangeBindException(
+                new org.springframework.core.MethodParameter(method, 0),
+                bindingResult
+        );
+
+        ErrorResponse response = handler.handleValidationErrors(exception, exchange);
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.status());
+        assertEquals("Bad Request", response.error());
+        assertEquals("Error de validación", response.message());
+        assertEquals(2, response.details().size());
+        assertTrue(response.details().contains("email: El email no tiene un formato válido"));
+        assertTrue(response.details().contains("password: La contraseña es obligatoria"));
+    }
+
+    static class TestController {
+        public void testMethod(@ModelAttribute TestRequest request) {
+        }
+    }
+
+    static class TestRequest {
+        private String email;
+        private String password;
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 }

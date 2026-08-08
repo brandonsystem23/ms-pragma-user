@@ -9,6 +9,7 @@ import com.plazoleta.users_service.domain.port.in.LoginUseCase;
 import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
+import com.plazoleta.users_service.domain.util.EmailNormalizer;
 import reactor.core.publisher.Mono;
 
 public class LoginService implements LoginUseCase {
@@ -29,7 +30,7 @@ public class LoginService implements LoginUseCase {
 
     @Override
     public Mono<AuthResult> login(LoginCommand command) {
-        String normalizedEmail = normalizeEmail(command.email());
+        String normalizedEmail = EmailNormalizer.normalize(command.email());
 
         return userPersistencePort.findByEmail(normalizedEmail)
                 .switchIfEmpty(Mono.error(new UserNotFoundException()))
@@ -50,9 +51,5 @@ public class LoginService implements LoginUseCase {
                                 .userId(user.getId())
                                 .role(user.getRole().getName())
                                 .build()));
-    }
-
-    private String normalizeEmail(String email) {
-        return email == null ? null : email.trim().toLowerCase();
     }
 }

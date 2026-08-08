@@ -1,128 +1,89 @@
 package com.plazoleta.users_service.infrastructure.input.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plazoleta.users_service.domain.exception.DuplicateDocumentException;
 import com.plazoleta.users_service.domain.exception.DuplicateEmailException;
 import com.plazoleta.users_service.domain.exception.InvalidCredentialsException;
 import com.plazoleta.users_service.domain.exception.RoleNotFoundException;
 import com.plazoleta.users_service.domain.exception.UserNotFoundException;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebExceptionHandler;
-import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Component
-@Order(-2)
-public class GlobalExceptionHandler implements WebExceptionHandler {
+@RestControllerAdvice
+public class GlobalExceptionHandler {
 
-    private final ObjectMapper objectMapper;
-
-    public GlobalExceptionHandler(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    @ExceptionHandler(UserNotFoundException.class)
+    public ErrorResponse handleUserNotFound(UserNotFoundException ex, ServerWebExchange exchange) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), exchange, List.of());
     }
 
-    @Override
-    public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+    @ExceptionHandler({InvalidCredentialsException.class, BadCredentialsException.class})
+    public ErrorResponse handleInvalidCredentials(Exception ex, ServerWebExchange exchange) {
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), exchange, List.of());
+    }
 
-        ServerHttpRequest request = exchange.getRequest();
-        ErrorResponse errorResponse;
+    @ExceptionHandler({DuplicateEmailException.class, DuplicateDocumentException.class})
+    public ErrorResponse handleDuplicateData(RuntimeException ex, ServerWebExchange exchange) {
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), exchange, List.of());
+    }
 
-        if (ex instanceof UserNotFoundException) {
-            errorResponse = buildErrorResponse(
-                    HttpStatus.NOT_FOUND,
-                    ex.getMessage(),
-                    request.getPath().value(),
-                    List.of()
-            );
-        } else if (ex instanceof InvalidCredentialsException || ex instanceof BadCredentialsException) {
-            errorResponse = buildErrorResponse(
-                    HttpStatus.UNAUTHORIZED,
-                    ex.getMessage(),
-                    request.getPath().value(),
-                    List.of()
-            );
-        } else if (ex instanceof DuplicateEmailException || ex instanceof DuplicateDocumentException) {
-            errorResponse = buildErrorResponse(
-                    HttpStatus.CONFLICT,
-                    ex.getMessage(),
-                    request.getPath().value(),
-                    List.of()
-            );
-        } else if (ex instanceof RoleNotFoundException) {
-            errorResponse = buildErrorResponse(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    ex.getMessage(),
-                    request.getPath().value(),
-                    List.of()
-            );
-        } else if (ex instanceof AccessDeniedException) {
-            errorResponse = buildErrorResponse(
-                    HttpStatus.FORBIDDEN,
-                    "No tienes permisos para acceder a este recurso",
-                    request.getPath().value(),
-                    List.of()
-            );
-        } else if (ex instanceof WebExchangeBindException bindException) {
-            List<String> details = bindException.getFieldErrors()
-                    .stream()
-                    .map(this::formatFieldError)
-                    .toList();
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ErrorResponse handleRoleNotFound(RoleNotFoundException ex, ServerWebExchange exchange) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), exchange, List.of());
+    }
 
-            errorResponse = buildErrorResponse(
-                    HttpStatus.BAD_REQUEST,
-                    "Error de validación",
-                    request.getPath().value(),
-                    details
-            );
-        } else if (ex instanceof IllegalArgumentException) {
-            errorResponse = buildErrorResponse(
-                    HttpStatus.BAD_REQUEST,
-                    ex.getMessage(),
-                    request.getPath().value(),
-                    List.of()
-            );
-        } else {
-            errorResponse = buildErrorResponse(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Ocurrió un error interno en el servidor",
-                    request.getPath().value(),
-                    List.of()
-            );
-        }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ErrorResponse handleAccessDenied(AccessDeniedException ex, ServerWebExchange exchange) {
+        return buildErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "No tienes permisos para acceder a este recurso",
+                exchange,
+                List.of()
+        );
+    }
 
-        exchange.getResponse().setStatusCode(HttpStatus.valueOf(errorResponse.status()));
-        exchange.getResponse().getHeaders().add("Content-Type", "application/json");
+    @ExceptionHandler(WebExchangeBindException.class)
+    public ErrorResponse handleValidationErrors(WebExchangeBindException ex, ServerWebExchange exchange) {
+        List<String> details = ex.getFieldErrors()
+                .stream()
+                .map(this::formatFieldError)
+                .toList();
 
-        try {
-            byte[] bytes = objectMapper.writeValueAsBytes(errorResponse);
-            DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-            return exchange.getResponse().writeWith(Mono.just(buffer));
-        } catch (Exception e) {
-            byte[] bytes = """
-                    {"status":500,"error":"Internal Server Error","message":"Error serializando la respuesta"}
-                    """.getBytes(StandardCharsets.UTF_8);
-            DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-            exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-            return exchange.getResponse().writeWith(Mono.just(buffer));
-        }
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "Error de validación",
+                exchange,
+                details
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ErrorResponse handleIllegalArgument(IllegalArgumentException ex, ServerWebExchange exchange) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), exchange, List.of());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ErrorResponse handleGenericException(Exception ex, ServerWebExchange exchange) {
+        return buildErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Ocurrió un error interno en el servidor",
+                exchange,
+                List.of()
+        );
     }
 
     private ErrorResponse buildErrorResponse(
             HttpStatus status,
             String message,
-            String path,
+            ServerWebExchange exchange,
             List<String> details
     ) {
         return ErrorResponse.builder()
@@ -130,7 +91,7 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
                 .status(status.value())
                 .error(status.getReasonPhrase())
                 .message(message)
-                .path(path)
+                .path(exchange.getRequest().getPath().value())
                 .details(details)
                 .build();
     }
