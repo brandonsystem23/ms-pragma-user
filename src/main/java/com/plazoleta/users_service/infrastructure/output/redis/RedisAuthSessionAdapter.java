@@ -34,32 +34,36 @@ public class RedisAuthSessionAdapter implements AuthSessionPort {
     @Override
     public Mono<String> createSession(AuthSession authSession) {
         String token = UUID.randomUUID().toString();
+        String key = buildKey(token);
 
         return serialize(authSession)
-                .flatMap(json -> redisTemplate.opsForValue()
-                        .set(PREFIX + token, json, expiration)
-                        .flatMap(saved -> saved
-                                ? Mono.just(token)
-                                : Mono.error(new IllegalStateException("No se pudo almacenar la sesión en Redis"))));
+                .flatMap(json -> redisTemplate.opsForValue().set(key, json, expiration))
+                .flatMap(saved -> saved
+                        ? Mono.just(token)
+                        : Mono.error(new IllegalStateException("No se pudo almacenar la sesión en Redis")));
     }
 
     @Override
     public Mono<AuthSession> findByToken(String token) {
         return redisTemplate.opsForValue()
-                .get(PREFIX + token)
+                .get(buildKey(token))
                 .flatMap(this::deserialize);
     }
 
     @Override
     public Mono<Void> deleteByToken(String token) {
-        return redisTemplate.delete(PREFIX + token).then();
+        return redisTemplate.delete(buildKey(token)).then();
+    }
+
+    private String buildKey(String token) {
+        return PREFIX + token;
     }
 
     private Mono<String> serialize(AuthSession authSession) {
         try {
             return Mono.just(objectMapper.writeValueAsString(authSession));
         } catch (JsonProcessingException e) {
-            return Mono.error(new IllegalStateException("Error serializando la sesión"));
+            return Mono.error(new IllegalStateException("Error serializando la sesión", e));
         }
     }
 
@@ -67,7 +71,7 @@ public class RedisAuthSessionAdapter implements AuthSessionPort {
         try {
             return Mono.just(objectMapper.readValue(json, AuthSession.class));
         } catch (JsonProcessingException e) {
-            return Mono.error(new IllegalStateException("Error deserializando la sesión"));
+            return Mono.error(new IllegalStateException("Error deserializando la sesión", e));
         }
     }
 }

@@ -6,6 +6,7 @@ import com.plazoleta.users_service.domain.exception.InvalidCredentialsException;
 import com.plazoleta.users_service.domain.exception.RoleNotFoundException;
 import com.plazoleta.users_service.domain.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
@@ -21,28 +22,28 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ErrorResponse handleUserNotFound(UserNotFoundException ex, ServerWebExchange exchange) {
-        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), exchange, List.of());
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex, ServerWebExchange exchange) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), exchange, List.of());
     }
 
     @ExceptionHandler({InvalidCredentialsException.class, BadCredentialsException.class})
-    public ErrorResponse handleInvalidCredentials(Exception ex, ServerWebExchange exchange) {
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), exchange, List.of());
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(Exception ex, ServerWebExchange exchange) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), exchange, List.of());
     }
 
     @ExceptionHandler({DuplicateEmailException.class, DuplicateDocumentException.class})
-    public ErrorResponse handleDuplicateData(RuntimeException ex, ServerWebExchange exchange) {
-        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), exchange, List.of());
+    public ResponseEntity<ErrorResponse> handleDuplicateData(RuntimeException ex, ServerWebExchange exchange) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), exchange, List.of());
     }
 
     @ExceptionHandler(RoleNotFoundException.class)
-    public ErrorResponse handleRoleNotFound(RoleNotFoundException ex, ServerWebExchange exchange) {
-        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), exchange, List.of());
+    public ResponseEntity<ErrorResponse> handleRoleNotFound(RoleNotFoundException ex, ServerWebExchange exchange) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), exchange, List.of());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ErrorResponse handleAccessDenied(AccessDeniedException ex, ServerWebExchange exchange) {
-        return buildErrorResponse(
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex, ServerWebExchange exchange) {
+        return buildResponse(
                 HttpStatus.FORBIDDEN,
                 "No tienes permisos para acceder a este recurso",
                 exchange,
@@ -51,13 +52,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(WebExchangeBindException.class)
-    public ErrorResponse handleValidationErrors(WebExchangeBindException ex, ServerWebExchange exchange) {
+    public ResponseEntity<ErrorResponse> handleValidationErrors(WebExchangeBindException ex, ServerWebExchange exchange) {
         List<String> details = ex.getFieldErrors()
                 .stream()
                 .map(this::formatFieldError)
                 .toList();
 
-        return buildErrorResponse(
+        return buildResponse(
                 HttpStatus.BAD_REQUEST,
                 "Error de validación",
                 exchange,
@@ -66,13 +67,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ErrorResponse handleIllegalArgument(IllegalArgumentException ex, ServerWebExchange exchange) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), exchange, List.of());
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, ServerWebExchange exchange) {
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), exchange, List.of());
     }
 
     @ExceptionHandler(Exception.class)
-    public ErrorResponse handleGenericException(Exception ex, ServerWebExchange exchange) {
-        return buildErrorResponse(
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, ServerWebExchange exchange) {
+        return buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Ocurrió un error interno en el servidor",
                 exchange,
@@ -80,13 +81,13 @@ public class GlobalExceptionHandler {
         );
     }
 
-    private ErrorResponse buildErrorResponse(
+    private ResponseEntity<ErrorResponse> buildResponse(
             HttpStatus status,
             String message,
             ServerWebExchange exchange,
             List<String> details
     ) {
-        return ErrorResponse.builder()
+        ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(status.value())
                 .error(status.getReasonPhrase())
@@ -94,6 +95,8 @@ public class GlobalExceptionHandler {
                 .path(exchange.getRequest().getPath().value())
                 .details(details)
                 .build();
+
+        return ResponseEntity.status(status).body(errorResponse);
     }
 
     private String formatFieldError(FieldError fieldError) {

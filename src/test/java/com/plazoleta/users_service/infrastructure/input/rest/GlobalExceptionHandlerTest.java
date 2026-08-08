@@ -8,19 +8,21 @@ import com.plazoleta.users_service.domain.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.mock.web.server.MockServerWebExchange;
 
 import java.lang.reflect.Method;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GlobalExceptionHandlerTest {
@@ -38,8 +40,12 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleUserNotFound() {
-        ErrorResponse response = handler.handleUserNotFound(new UserNotFoundException(), exchange);
+        ResponseEntity<ErrorResponse> responseEntity =
+                handler.handleUserNotFound(new UserNotFoundException(), exchange);
 
+        ErrorResponse response = getBody(responseEntity);
+
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         assertEquals(HttpStatus.NOT_FOUND.value(), response.status());
         assertEquals("Not Found", response.error());
         assertEquals("Usuario no encontrado", response.message());
@@ -48,8 +54,12 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleInvalidCredentials() {
-        ErrorResponse response = handler.handleInvalidCredentials(new InvalidCredentialsException(), exchange);
+        ResponseEntity<ErrorResponse> responseEntity =
+                handler.handleInvalidCredentials(new InvalidCredentialsException(), exchange);
 
+        ErrorResponse response = getBody(responseEntity);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
         assertEquals(HttpStatus.UNAUTHORIZED.value(), response.status());
         assertEquals("Unauthorized", response.error());
         assertEquals("Credenciales inválidas", response.message());
@@ -57,11 +67,15 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleBadCredentials() {
-        ErrorResponse response = handler.handleInvalidCredentials(
-                new BadCredentialsException("Credenciales incorrectas"),
-                exchange
-        );
+        ResponseEntity<ErrorResponse> responseEntity =
+                handler.handleInvalidCredentials(
+                        new BadCredentialsException("Credenciales incorrectas"),
+                        exchange
+                );
 
+        ErrorResponse response = getBody(responseEntity);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
         assertEquals(HttpStatus.UNAUTHORIZED.value(), response.status());
         assertEquals("Unauthorized", response.error());
         assertEquals("Credenciales incorrectas", response.message());
@@ -69,8 +83,12 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleDuplicateEmail() {
-        ErrorResponse response = handler.handleDuplicateData(new DuplicateEmailException(), exchange);
+        ResponseEntity<ErrorResponse> responseEntity =
+                handler.handleDuplicateData(new DuplicateEmailException(), exchange);
 
+        ErrorResponse response = getBody(responseEntity);
+
+        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
         assertEquals(HttpStatus.CONFLICT.value(), response.status());
         assertEquals("Conflict", response.error());
         assertEquals("El email ya está registrado", response.message());
@@ -78,8 +96,12 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleDuplicateDocument() {
-        ErrorResponse response = handler.handleDuplicateData(new DuplicateDocumentException(), exchange);
+        ResponseEntity<ErrorResponse> responseEntity =
+                handler.handleDuplicateData(new DuplicateDocumentException(), exchange);
 
+        ErrorResponse response = getBody(responseEntity);
+
+        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
         assertEquals(HttpStatus.CONFLICT.value(), response.status());
         assertEquals("Conflict", response.error());
         assertEquals("El numberDocument de identidad ya está registrado", response.message());
@@ -87,11 +109,12 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleRoleNotFound() {
-        ErrorResponse response = handler.handleRoleNotFound(
-                new RoleNotFoundException("ADMIN"),
-                exchange
-        );
+        ResponseEntity<ErrorResponse> responseEntity =
+                handler.handleRoleNotFound(new RoleNotFoundException("ADMIN"), exchange);
 
+        ErrorResponse response = getBody(responseEntity);
+
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         assertEquals(HttpStatus.NOT_FOUND.value(), response.status());
         assertEquals("Not Found", response.error());
         assertEquals("El role ADMIN no existe", response.message());
@@ -99,11 +122,15 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleAccessDenied() {
-        ErrorResponse response = handler.handleAccessDenied(
-                new AccessDeniedException("Acceso denegado"),
-                exchange
-        );
+        ResponseEntity<ErrorResponse> responseEntity =
+                handler.handleAccessDenied(
+                        new AccessDeniedException("Acceso denegado"),
+                        exchange
+                );
 
+        ErrorResponse response = getBody(responseEntity);
+
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
         assertEquals(HttpStatus.FORBIDDEN.value(), response.status());
         assertEquals("Forbidden", response.error());
         assertEquals("No tienes permisos para acceder a este recurso", response.message());
@@ -111,11 +138,15 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleIllegalArgument() {
-        ErrorResponse response = handler.handleIllegalArgument(
-                new IllegalArgumentException("Authorization header inválido"),
-                exchange
-        );
+        ResponseEntity<ErrorResponse> responseEntity =
+                handler.handleIllegalArgument(
+                        new IllegalArgumentException("Authorization header inválido"),
+                        exchange
+                );
 
+        ErrorResponse response = getBody(responseEntity);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.status());
         assertEquals("Bad Request", response.error());
         assertEquals("Authorization header inválido", response.message());
@@ -123,11 +154,15 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldHandleGenericException() {
-        ErrorResponse response = handler.handleGenericException(
-                new RuntimeException("Error inesperado"),
-                exchange
-        );
+        ResponseEntity<ErrorResponse> responseEntity =
+                handler.handleGenericException(
+                        new RuntimeException("Error inesperado"),
+                        exchange
+                );
 
+        ErrorResponse response = getBody(responseEntity);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.status());
         assertEquals("Internal Server Error", response.error());
         assertEquals("Ocurrió un error interno en el servidor", response.message());
@@ -147,14 +182,24 @@ class GlobalExceptionHandlerTest {
                 bindingResult
         );
 
-        ErrorResponse response = handler.handleValidationErrors(exception, exchange);
+        ResponseEntity<ErrorResponse> responseEntity =
+                handler.handleValidationErrors(exception, exchange);
 
+        ErrorResponse response = getBody(responseEntity);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.status());
         assertEquals("Bad Request", response.error());
         assertEquals("Error de validación", response.message());
         assertEquals(2, response.details().size());
         assertTrue(response.details().contains("email: El email no tiene un formato válido"));
         assertTrue(response.details().contains("password: La contraseña es obligatoria"));
+    }
+
+    private ErrorResponse getBody(ResponseEntity<ErrorResponse> responseEntity) {
+        ErrorResponse body = responseEntity.getBody();
+        assertNotNull(body);
+        return body;
     }
 
     static class TestController {

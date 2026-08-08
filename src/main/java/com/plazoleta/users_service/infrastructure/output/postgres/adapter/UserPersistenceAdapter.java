@@ -39,7 +39,7 @@ public class UserPersistenceAdapter implements UserPersistencePort {
     @Override
     public Mono<Role> findRoleByName(String name) {
         return roleRepository.findByName(name)
-                .map(this::mapRoleToDomain);
+                .map(this::toDomainRole);
     }
 
     @Override
@@ -47,18 +47,7 @@ public class UserPersistenceAdapter implements UserPersistencePort {
         UserEntity userEntity = userEntityMapper.toEntity(user);
 
         return userRepository.save(userEntity)
-                .map(savedEntity -> User.builder()
-                        .id(savedEntity.getId())
-                        .firstName(savedEntity.getFirstName())
-                        .lastName(savedEntity.getLastName())
-                        .numberDocument(savedEntity.getNumberDocument())
-                        .phone(savedEntity.getPhone())
-                        .birthDate(savedEntity.getBirthDate())
-                        .email(savedEntity.getEmail())
-                        .password(savedEntity.getPassword())
-                        .status(savedEntity.getStatus())
-                        .role(user.getRole())
-                        .build());
+                .map(savedEntity -> toSavedDomain(user, savedEntity));
     }
 
     private Mono<User> mapUserWithRole(UserEntity userEntity) {
@@ -66,11 +55,26 @@ public class UserPersistenceAdapter implements UserPersistencePort {
                 .map(roleEntity -> userEntityMapper.toDomain(userEntity, roleEntity));
     }
 
-    private Role mapRoleToDomain(RoleEntity roleEntity) {
+    private Role toDomainRole(RoleEntity roleEntity) {
         return Role.builder()
                 .id(roleEntity.getId())
                 .name(roleEntity.getName())
                 .description(roleEntity.getDescription())
+                .build();
+    }
+
+    private User toSavedDomain(User originalUser, UserEntity savedEntity) {
+        return User.builder()
+                .id(savedEntity.getId())
+                .firstName(savedEntity.getFirstName())
+                .lastName(savedEntity.getLastName())
+                .numberDocument(savedEntity.getNumberDocument())
+                .phone(savedEntity.getPhone())
+                .birthDate(savedEntity.getBirthDate())
+                .email(savedEntity.getEmail())
+                .password(savedEntity.getPassword())
+                .status(savedEntity.getStatus())
+                .role(originalUser.getRole())
                 .build();
     }
 }

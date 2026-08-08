@@ -53,10 +53,15 @@ class AuthControllerTest {
 
     @Test
     void shouldFailLogoutWhenAuthorizationHeaderIsInvalid() {
-        StepVerifier.create(authController.logout("Basic token-123"))
-                .expectErrorMatches(throwable ->
-                        throwable instanceof IllegalArgumentException &&
-                                "Authorization header inválido".equals(throwable.getMessage()))
-                .verify();
+        IllegalArgumentException exception = org.junit.jupiter.api.Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> authController.logout("Basic token-123")
+        );
+
+        org.junit.jupiter.api.Assertions.assertEquals(
+                "Authorization header inválido",
+                exception.getMessage()
+        );
     }
+
 }

@@ -4,10 +4,12 @@ server:
 spring:
   application:
     name: users-service
+
   r2dbc:
     url: ${R2DBC_URL:r2dbc:postgresql://localhost:5432/postgres}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:123456}
+
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -18,15 +20,15 @@ auth:
   token:
     expiration: ${AUTH_TOKEN_EXPIRATION:3600000}
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
 logging:
   level:
     root: INFO
     org.springframework.security: INFO
     org.springframework.r2dbc: DEBUG
     io.r2dbc.postgresql: INFO
-
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-  swagger-ui:
-    path: /swagger-ui.html
