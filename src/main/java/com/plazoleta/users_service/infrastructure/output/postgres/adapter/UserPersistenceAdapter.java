@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 public class UserPersistenceAdapter implements UserPersistencePort {
 
     private final UserRepository userRepository;
-    private final RoleRepository rolRepository;
+    private final RoleRepository roleRepository;
     private final UserEntityMapper userEntityMapper;
 
     @Override
@@ -38,8 +38,8 @@ public class UserPersistenceAdapter implements UserPersistencePort {
 
     @Override
     public Mono<Role> findRoleByName(String name) {
-        return rolRepository.findByName(name)
-                .map(this::mapRolToDomain);
+        return roleRepository.findByName(name)
+                .map(this::mapRoleToDomain);
     }
 
     @Override
@@ -62,11 +62,11 @@ public class UserPersistenceAdapter implements UserPersistencePort {
     }
 
     private Mono<User> mapUserWithRole(UserEntity userEntity) {
-        return rolRepository.findById(userEntity.getRoleId())
+        return roleRepository.findById(userEntity.getRoleId())
                 .map(rolEntity -> userEntityMapper.toDomain(userEntity, rolEntity));
     }
 
-    private Role mapRolToDomain(RoleEntity rolEntity) {
+    private Role mapRoleToDomain(RoleEntity rolEntity) {
         return Role.builder()
                 .id(rolEntity.getId())
                 .name(rolEntity.getName())
