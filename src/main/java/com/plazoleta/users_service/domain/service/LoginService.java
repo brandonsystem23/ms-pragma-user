@@ -33,22 +33,22 @@ public class LoginService implements LoginUseCase {
 
         return userPersistencePort.findByEmail(normalizedEmail)
                 .switchIfEmpty(Mono.error(new UserNotFoundException()))
-                .filter(usuario -> passwordEncoderPort.matches(command.password(), usuario.getPassword()))
+                .filter(user -> passwordEncoderPort.matches(command.password(), user.getPassword()))
                 .switchIfEmpty(Mono.error(new InvalidCredentialsException()))
-                .flatMap(usuario -> authSessionPort.createSession(
+                .flatMap(user -> authSessionPort.createSession(
                                 AuthSession.builder()
-                                        .userId(usuario.getId())
-                                        .role(usuario.getRole().getName())
-                                        .numberDocument(usuario.getNumberDocument())
-                                        .phone(usuario.getPhone())
-                                        .email(usuario.getEmail())
+                                        .userId(user.getId())
+                                        .role(user.getRole().getName())
+                                        .numberDocument(user.getNumberDocument())
+                                        .phone(user.getPhone())
+                                        .email(user.getEmail())
                                         .build()
                         )
                         .map(token -> AuthResult.builder()
                                 .token(token)
                                 .tokenType("Bearer")
-                                .userId(usuario.getId())
-                                .role(usuario.getRole().getName())
+                                .userId(user.getId())
+                                .role(user.getRole().getName())
                                 .build()));
     }
 

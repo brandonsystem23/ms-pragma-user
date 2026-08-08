@@ -19,22 +19,22 @@ import static org.mockito.Mockito.*;
 
 class LoginServiceTest {
 
-    private UserPersistencePort usuarioPersistencePort;
+    private UserPersistencePort userPersistencePort;
     private PasswordEncoderPort passwordEncoderPort;
     private AuthSessionPort authSessionPort;
     private LoginService loginService;
 
     @BeforeEach
     void setUp() {
-        usuarioPersistencePort = mock(UserPersistencePort.class);
+        userPersistencePort = mock(UserPersistencePort.class);
         passwordEncoderPort = mock(PasswordEncoderPort.class);
         authSessionPort = mock(AuthSessionPort.class);
-        loginService = new LoginService(usuarioPersistencePort, passwordEncoderPort, authSessionPort);
+        loginService = new LoginService(userPersistencePort, passwordEncoderPort, authSessionPort);
     }
 
     @Test
     void shouldLoginSuccessfully() {
-        User usuario = User.builder()
+        User user = User.builder()
                 .id(10L)
                 .firstName("Ana")
                 .lastName("Lopez")
@@ -46,7 +46,7 @@ class LoginServiceTest {
                 .role(Role.builder().id(1L).name("ADMIN").description("Administrador").build())
                 .build();
 
-        when(usuarioPersistencePort.findByEmail("ana@test.com")).thenReturn(Mono.just(usuario));
+        when(userPersistencePort.findByEmail("ana@test.com")).thenReturn(Mono.just(user));
         when(passwordEncoderPort.matches("123456", "encoded-password")).thenReturn(true);
         when(authSessionPort.createSession(any(AuthSession.class))).thenReturn(Mono.just("token-123"));
 
@@ -62,7 +62,7 @@ class LoginServiceTest {
 
     @Test
     void shouldFailWhenUserNotFound() {
-        when(usuarioPersistencePort.findByEmail("notfound@test.com")).thenReturn(Mono.empty());
+        when(userPersistencePort.findByEmail("notfound@test.com")).thenReturn(Mono.empty());
 
         StepVerifier.create(loginService.login(new LoginCommand("notfound@test.com", "123456")))
                 .expectError(UserNotFoundException.class)
@@ -71,14 +71,14 @@ class LoginServiceTest {
 
     @Test
     void shouldFailWhenPasswordIsInvalid() {
-        User usuario = User.builder()
+        User user = User.builder()
                 .id(10L)
                 .email("ana@test.com")
                 .password("encoded-password")
                 .role(Role.builder().id(1L).name("ADMIN").description("Administrador").build())
                 .build();
 
-        when(usuarioPersistencePort.findByEmail("ana@test.com")).thenReturn(Mono.just(usuario));
+        when(userPersistencePort.findByEmail("ana@test.com")).thenReturn(Mono.just(user));
         when(passwordEncoderPort.matches("wrong-password", "encoded-password")).thenReturn(false);
 
         StepVerifier.create(loginService.login(new LoginCommand("ana@test.com", "wrong-password")))

@@ -18,7 +18,7 @@ public class UserRegistrationValidator {
     public Mono<Role> validate(String numberDocument, String email, String roleName) {
         return validateDocument(numberDocument)
                 .then(validateEmail(email))
-                .then(userPersistencePort.findRoleByFirstName(roleName))
+                .then(userPersistencePort.findRoleByName(roleName))
                 .switchIfEmpty(Mono.error(new RoleNotFoundException(roleName)));
     }
 

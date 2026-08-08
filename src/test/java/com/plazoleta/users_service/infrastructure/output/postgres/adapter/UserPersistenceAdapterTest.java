@@ -18,22 +18,22 @@ import static org.mockito.Mockito.*;
 
 class UserPersistenceAdapterTest {
 
-    private UserRepository usuarioRepository;
-    private RoleRepository rolRepository;
-    private UserEntityMapper usuarioEntityMapper;
+    private UserRepository userRepository;
+    private RoleRepository roleRepository;
+    private UserEntityMapper userEntityMapper;
     private UserPersistenceAdapter adapter;
 
     @BeforeEach
     void setUp() {
-        usuarioRepository = mock(UserRepository.class);
-        rolRepository = mock(RoleRepository.class);
-        usuarioEntityMapper = mock(UserEntityMapper.class);
-        adapter = new UserPersistenceAdapter(usuarioRepository, rolRepository, usuarioEntityMapper);
+        userRepository = mock(UserRepository.class);
+        roleRepository = mock(RoleRepository.class);
+        userEntityMapper = mock(UserEntityMapper.class);
+        adapter = new UserPersistenceAdapter(userRepository, roleRepository, userEntityMapper);
     }
 
     @Test
-    void shouldFindUserByCorreoSuccessfully() {
-        UserEntity usuarioEntity = UserEntity.builder()
+    void shouldFindUserByEmailSuccessfully() {
+        UserEntity userEntity = UserEntity.builder()
                 .id(1L)
                 .firstName("Juan")
                 .lastName("Perez")
@@ -52,7 +52,7 @@ class UserPersistenceAdapterTest {
                 .description("Rol propietario")
                 .build();
 
-        User usuario = User.builder()
+        User user = User.builder()
                 .id(1L)
                 .firstName("Juan")
                 .lastName("Perez")
@@ -65,18 +65,18 @@ class UserPersistenceAdapterTest {
                 .role(Role.builder().id(2L).name("PROPIETARIO").description("Rol propietario").build())
                 .build();
 
-        when(usuarioRepository.findByEmail("juan@test.com")).thenReturn(Mono.just(usuarioEntity));
-        when(rolRepository.findById(2L)).thenReturn(Mono.just(rolEntity));
-        when(usuarioEntityMapper.toDomain(usuarioEntity, rolEntity)).thenReturn(usuario);
+        when(userRepository.findByEmail("juan@test.com")).thenReturn(Mono.just(userEntity));
+        when(roleRepository.findById(2L)).thenReturn(Mono.just(rolEntity));
+        when(userEntityMapper.toDomain(userEntity, rolEntity)).thenReturn(user);
 
         StepVerifier.create(adapter.findByEmail("juan@test.com"))
-                .expectNext(usuario)
+                .expectNext(user)
                 .verifyComplete();
     }
 
     @Test
-    void shouldReturnExistsByCorreo() {
-        when(usuarioRepository.existsByEmail("test@test.com")).thenReturn(Mono.just(true));
+    void shouldReturnExistsByEmail() {
+        when(userRepository.existsByEmail("test@test.com")).thenReturn(Mono.just(true));
 
         StepVerifier.create(adapter.existsByEmail("test@test.com"))
                 .expectNext(true)
@@ -84,8 +84,8 @@ class UserPersistenceAdapterTest {
     }
 
     @Test
-    void shouldReturnExistsByDocumento() {
-        when(usuarioRepository.existsByNumberDocument("123456")).thenReturn(Mono.just(true));
+    void shouldReturnExistsByNumberDocument() {
+        when(userRepository.existsByNumberDocument("123456")).thenReturn(Mono.just(true));
 
         StepVerifier.create(adapter.existsByNumberDocument("123456"))
                 .expectNext(true)
@@ -93,27 +93,27 @@ class UserPersistenceAdapterTest {
     }
 
     @Test
-    void shouldFindRoleByNombreSuccessfully() {
+    void shouldFindRoleByNameSuccessfully() {
         RoleEntity rolEntity = RoleEntity.builder()
                 .id(1L)
                 .name("ADMIN")
                 .description("Administrador")
                 .build();
 
-        when(rolRepository.findByName("ADMIN")).thenReturn(Mono.just(rolEntity));
+        when(roleRepository.findByName("ADMIN")).thenReturn(Mono.just(rolEntity));
 
-        StepVerifier.create(adapter.findRoleByFirstName("ADMIN"))
-                .assertNext(rol -> {
-                    assert 1L == rol.getId();
-                    assert "ADMIN".equals(rol.getName());
-                    assert "Administrador".equals(rol.getDescription());
+        StepVerifier.create(adapter.findRoleByName("ADMIN"))
+                .assertNext(role -> {
+                    assert 1L == role.getId();
+                    assert "ADMIN".equals(role.getName());
+                    assert "Administrador".equals(role.getDescription());
                 })
                 .verifyComplete();
     }
 
     @Test
     void shouldSaveUserSuccessfully() {
-        User usuario = User.builder()
+        User user = User.builder()
                 .firstName("Ana")
                 .lastName("Lopez")
                 .numberDocument("789456")
@@ -125,7 +125,7 @@ class UserPersistenceAdapterTest {
                 .role(Role.builder().id(3L).name("EMPLEADO").description("Rol empleado").build())
                 .build();
 
-        UserEntity usuarioEntity = UserEntity.builder()
+        UserEntity userEntity = UserEntity.builder()
                 .firstName("Ana")
                 .lastName("Lopez")
                 .numberDocument("789456")
@@ -150,10 +150,10 @@ class UserPersistenceAdapterTest {
                 .roleId(3L)
                 .build();
 
-        when(usuarioEntityMapper.toEntity(usuario)).thenReturn(usuarioEntity);
-        when(usuarioRepository.save(usuarioEntity)).thenReturn(Mono.just(savedEntity));
+        when(userEntityMapper.toEntity(user)).thenReturn(userEntity);
+        when(userRepository.save(userEntity)).thenReturn(Mono.just(savedEntity));
 
-        StepVerifier.create(adapter.save(usuario))
+        StepVerifier.create(adapter.save(user))
                 .assertNext(savedUser -> {
                     assert 10L == savedUser.getId();
                     assert "Ana".equals(savedUser.getFirstName());

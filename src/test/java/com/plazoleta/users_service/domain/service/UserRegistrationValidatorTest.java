@@ -15,13 +15,13 @@ import static org.mockito.Mockito.when;
 
 class UserRegistrationValidatorTest {
 
-    private UserPersistencePort usuarioPersistencePort;
+    private UserPersistencePort userPersistencePort;
     private UserRegistrationValidator validator;
 
     @BeforeEach
     void setUp() {
-        usuarioPersistencePort = mock(UserPersistencePort.class);
-        validator = new UserRegistrationValidator(usuarioPersistencePort);
+        userPersistencePort = mock(UserPersistencePort.class);
+        validator = new UserRegistrationValidator(userPersistencePort);
     }
 
     @Test
@@ -32,11 +32,11 @@ class UserRegistrationValidatorTest {
                 .description("Rol cliente")
                 .build();
 
-        when(usuarioPersistencePort.existsByNumberDocument("123456"))
+        when(userPersistencePort.existsByNumberDocument("123456"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.existsByEmail("test@test.com"))
+        when(userPersistencePort.existsByEmail("test@test.com"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.findRoleByFirstName("CLIENTE"))
+        when(userPersistencePort.findRoleByName("CLIENTE"))
                 .thenReturn(Mono.just(rol));
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
@@ -52,11 +52,11 @@ class UserRegistrationValidatorTest {
                 .description("Rol cliente")
                 .build();
 
-        when(usuarioPersistencePort.existsByNumberDocument("123456"))
+        when(userPersistencePort.existsByNumberDocument("123456"))
                 .thenReturn(Mono.just(true));
-        when(usuarioPersistencePort.existsByEmail("test@test.com"))
+        when(userPersistencePort.existsByEmail("test@test.com"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.findRoleByFirstName("CLIENTE"))
+        when(userPersistencePort.findRoleByName("CLIENTE"))
                 .thenReturn(Mono.just(rol));
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
@@ -72,11 +72,11 @@ class UserRegistrationValidatorTest {
                 .description("Rol cliente")
                 .build();
 
-        when(usuarioPersistencePort.existsByNumberDocument("123456"))
+        when(userPersistencePort.existsByNumberDocument("123456"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.existsByEmail("test@test.com"))
+        when(userPersistencePort.existsByEmail("test@test.com"))
                 .thenReturn(Mono.just(true));
-        when(usuarioPersistencePort.findRoleByFirstName("CLIENTE"))
+        when(userPersistencePort.findRoleByName("CLIENTE"))
                 .thenReturn(Mono.just(rol));
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
@@ -86,11 +86,11 @@ class UserRegistrationValidatorTest {
 
     @Test
     void shouldFailWhenRoleDoesNotExist() {
-        when(usuarioPersistencePort.existsByNumberDocument("123456"))
+        when(userPersistencePort.existsByNumberDocument("123456"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.existsByEmail("test@test.com"))
+        when(userPersistencePort.existsByEmail("test@test.com"))
                 .thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.findRoleByFirstName("CLIENTE"))
+        when(userPersistencePort.findRoleByName("CLIENTE"))
                 .thenReturn(Mono.empty());
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))

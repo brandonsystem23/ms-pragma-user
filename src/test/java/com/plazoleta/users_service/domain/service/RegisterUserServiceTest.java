@@ -17,20 +17,20 @@ import static org.mockito.Mockito.*;
 
 class RegisterUserServiceTest {
 
-    private UserPersistencePort usuarioPersistencePort;
+    private UserPersistencePort userPersistencePort;
     private PasswordEncoderPort passwordEncoderPort;
     private RegisterUserService registerUserService;
 
     @BeforeEach
     void setUp() {
-        usuarioPersistencePort = mock(UserPersistencePort.class);
+        userPersistencePort = mock(UserPersistencePort.class);
         passwordEncoderPort = mock(PasswordEncoderPort.class);
-        registerUserService = new RegisterUserService(usuarioPersistencePort, passwordEncoderPort);
+        registerUserService = new RegisterUserService(userPersistencePort, passwordEncoderPort);
     }
 
     @Test
     void shouldRegisterUserSuccessfully() {
-        Role rol = Role.builder()
+        Role role = Role.builder()
                 .id(2L)
                 .name("PROPIETARIO")
                 .description("Rol propietario")
@@ -47,25 +47,25 @@ class RegisterUserServiceTest {
                 "PROPIETARIO"
         );
 
-        when(usuarioPersistencePort.existsByNumberDocument("123456")).thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.existsByEmail("juan@email.com")).thenReturn(Mono.just(false));
-        when(usuarioPersistencePort.findRoleByFirstName("PROPIETARIO")).thenReturn(Mono.just(rol));
+        when(userPersistencePort.existsByNumberDocument("123456")).thenReturn(Mono.just(false));
+        when(userPersistencePort.existsByEmail("juan@email.com")).thenReturn(Mono.just(false));
+        when(userPersistencePort.findRoleByName("PROPIETARIO")).thenReturn(Mono.just(role));
         when(passwordEncoderPort.encode("123456")).thenReturn("encoded-password");
 
-        when(usuarioPersistencePort.save(any(User.class)))
+        when(userPersistencePort.save(any(User.class)))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
         StepVerifier.create(registerUserService.register(command))
-                .assertNext(usuario -> {
-                    assert "Juan".equals(usuario.getFirstName());
-                    assert "Pérez".equals(usuario.getLastName());
-                    assert "123456".equals(usuario.getNumberDocument());
-                    assert "+573001112233".equals(usuario.getPhone());
-                    assert LocalDate.of(1990, 1, 1).equals(usuario.getBirthDate());
-                    assert "juan@email.com".equals(usuario.getEmail());
-                    assert "encoded-password".equals(usuario.getPassword());
-                    assert Boolean.TRUE.equals(usuario.getStatus());
-                    assert "PROPIETARIO".equals(usuario.getRole().getName());
+                .assertNext(user -> {
+                    assert "Juan".equals(user.getFirstName());
+                    assert "Pérez".equals(user.getLastName());
+                    assert "123456".equals(user.getNumberDocument());
+                    assert "+573001112233".equals(user.getPhone());
+                    assert LocalDate.of(1990, 1, 1).equals(user.getBirthDate());
+                    assert "juan@email.com".equals(user.getEmail());
+                    assert "encoded-password".equals(user.getPassword());
+                    assert Boolean.TRUE.equals(user.getStatus());
+                    assert "PROPIETARIO".equals(user.getRole().getName());
                 })
                 .verifyComplete();
     }

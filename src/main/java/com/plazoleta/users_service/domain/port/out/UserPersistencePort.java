@@ -12,7 +12,7 @@ public interface UserPersistencePort {
 
     Mono<Boolean> existsByNumberDocument(String numberDocument);
 
-    Mono<Role> findRoleByFirstName(String firstName);
+    Mono<Role> findRoleByName(String name);
 
-    Mono<User> save(User usuario);
+    Mono<User> save(User user);
 }

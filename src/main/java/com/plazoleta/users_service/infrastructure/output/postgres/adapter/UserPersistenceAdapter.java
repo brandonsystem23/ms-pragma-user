@@ -18,7 +18,7 @@ public class UserPersistenceAdapter implements UserPersistencePort {
 
     private final UserRepository userRepository;
     private final RoleRepository rolRepository;
-    private final UserEntityMapper usuarioEntityMapper;
+    private final UserEntityMapper userEntityMapper;
 
     @Override
     public Mono<User> findByEmail(String email) {
@@ -37,14 +37,14 @@ public class UserPersistenceAdapter implements UserPersistencePort {
     }
 
     @Override
-    public Mono<Role> findRoleByFirstName(String firstName) {
-        return rolRepository.findByName(firstName)
+    public Mono<Role> findRoleByName(String name) {
+        return rolRepository.findByName(name)
                 .map(this::mapRolToDomain);
     }
 
     @Override
     public Mono<User> save(User user) {
-        UserEntity userEntity = usuarioEntityMapper.toEntity(user);
+        UserEntity userEntity = userEntityMapper.toEntity(user);
 
         return userRepository.save(userEntity)
                 .map(savedEntity -> User.builder()
@@ -61,9 +61,9 @@ public class UserPersistenceAdapter implements UserPersistencePort {
                         .build());
     }
 
-    private Mono<User> mapUserWithRole(UserEntity usuarioEntity) {
-        return rolRepository.findById(usuarioEntity.getRoleId())
-                .map(rolEntity -> usuarioEntityMapper.toDomain(usuarioEntity, rolEntity));
+    private Mono<User> mapUserWithRole(UserEntity userEntity) {
+        return rolRepository.findById(userEntity.getRoleId())
+                .map(rolEntity -> userEntityMapper.toDomain(userEntity, rolEntity));
     }
 
     private Role mapRolToDomain(RoleEntity rolEntity) {

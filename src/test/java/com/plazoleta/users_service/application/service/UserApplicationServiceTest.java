@@ -40,7 +40,7 @@ class UserApplicationServiceTest {
                 "owner@test.com", "123456"
         );
 
-        User usuario = User.builder()
+        User user = User.builder()
                 .id(1L)
                 .firstName("Juan")
                 .lastName("Perez")
@@ -64,8 +64,8 @@ class UserApplicationServiceTest {
                 .role("PROPIETARIO")
                 .build();
 
-        when(registerUserUseCase.register(any())).thenReturn(Mono.just(usuario));
-        when(userDtoMapper.toResponse(usuario)).thenReturn(response);
+        when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
+        when(userDtoMapper.toResponse(user)).thenReturn(response);
 
         StepVerifier.create(userApplicationService.createOwner(request))
                 .expectNext(response)
@@ -79,7 +79,7 @@ class UserApplicationServiceTest {
                 "employee@test.com", "123456"
         );
 
-        User usuario = User.builder()
+        User user = User.builder()
                 .id(2L)
                 .firstName("Ana")
                 .lastName("Lopez")
@@ -101,8 +101,8 @@ class UserApplicationServiceTest {
                 .role("EMPLEADO")
                 .build();
 
-        when(registerUserUseCase.register(any())).thenReturn(Mono.just(usuario));
-        when(userDtoMapper.toResponse(usuario)).thenReturn(response);
+        when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
+        when(userDtoMapper.toResponse(user)).thenReturn(response);
 
         StepVerifier.create(userApplicationService.createEmployee(request))
                 .expectNext(response)
@@ -116,7 +116,7 @@ class UserApplicationServiceTest {
                 "client@test.com", "123456"
         );
 
-        User usuario = User.builder()
+        User user = User.builder()
                 .id(3L)
                 .firstName("Carlos")
                 .lastName("Ramirez")
@@ -138,8 +138,8 @@ class UserApplicationServiceTest {
                 .role("CLIENTE")
                 .build();
 
-        when(registerUserUseCase.register(any())).thenReturn(Mono.just(usuario));
-        when(userDtoMapper.toResponse(usuario)).thenReturn(response);
+        when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
+        when(userDtoMapper.toResponse(user)).thenReturn(response);
 
         StepVerifier.create(userApplicationService.selfRegisterClient(request))
                 .expectNext(response)

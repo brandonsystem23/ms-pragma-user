@@ -11,15 +11,15 @@ public class AdultValidator
 
     @Override
     public boolean isValid(
-            LocalDate fechaNacimiento,
+            LocalDate birthDate,
             ConstraintValidatorContext context) {
 
-        if (fechaNacimiento == null) {
+        if (birthDate == null) {
             return true;
         }
 
         return Period.between(
-                fechaNacimiento,
+                birthDate,
                 LocalDate.now()
         ).getYears() >= 18;
     }

@@ -32,7 +32,7 @@ public class RegisterUserService implements RegisterUserUseCase {
                         command.roleName()
                 )
                 .flatMap(rol -> {
-                    User usuario = User.builder()
+                    User user = User.builder()
                             .firstName(command.firstName())
                             .lastName(command.lastName())
                             .numberDocument(command.numberDocument())
@@ -44,7 +44,7 @@ public class RegisterUserService implements RegisterUserUseCase {
                             .role(rol)
                             .build();
 
-                    return userPersistencePort.save(usuario);
+                    return userPersistencePort.save(user);
                 });
     }
 
