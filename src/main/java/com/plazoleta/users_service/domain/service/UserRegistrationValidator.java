@@ -22,14 +22,14 @@ public class UserRegistrationValidator {
 
     private Mono<Void> validateDocument(String numberDocument) {
         return userPersistencePort.existsByNumberDocument(numberDocument)
-                .flatMap(exists -> exists
+                .flatMap(exists -> Boolean.TRUE.equals(exists)
                         ? Mono.error(new DuplicateDocumentException())
                         : Mono.empty());
     }
 
     private Mono<Void> validateEmail(String email) {
         return userPersistencePort.existsByEmail(email)
-                .flatMap(exists -> exists
+                .flatMap(exists -> Boolean.TRUE.equals(exists)
                         ? Mono.error(new DuplicateEmailException())
                         : Mono.empty());
     }
