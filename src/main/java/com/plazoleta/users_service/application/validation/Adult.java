@@ -1,4 +1,4 @@
-package com.plazoleta.users_service.infrastructure.validation;
+package com.plazoleta.users_service.application.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

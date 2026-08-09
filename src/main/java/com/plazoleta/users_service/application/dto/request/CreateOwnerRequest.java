@@ -1,6 +1,6 @@
 package com.plazoleta.users_service.application.dto.request;
 
-import com.plazoleta.users_service.infrastructure.validation.Adult;
+import com.plazoleta.users_service.application.validation.Adult;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

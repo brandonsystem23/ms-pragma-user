@@ -1,5 +1,6 @@
 package com.plazoleta.users_service.infrastructure.validation;
 
+import com.plazoleta.users_service.application.validation.AdultValidator;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
