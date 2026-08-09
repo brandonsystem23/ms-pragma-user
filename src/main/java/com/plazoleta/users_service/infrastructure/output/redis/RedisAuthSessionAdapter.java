@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plazoleta.users_service.domain.model.auth.AuthSession;
 import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class RedisAuthSessionAdapter implements AuthSessionPort {
 
     private static final String PREFIX = "auth:token:";
@@ -20,16 +21,6 @@ public class RedisAuthSessionAdapter implements AuthSessionPort {
     private final ReactiveStringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
     private final Duration expiration;
-
-    public RedisAuthSessionAdapter(
-            ReactiveStringRedisTemplate redisTemplate,
-            ObjectMapper objectMapper,
-            @Value("${auth.token.expiration}") Long expirationMillis
-    ) {
-        this.redisTemplate = redisTemplate;
-        this.objectMapper = objectMapper;
-        this.expiration = Duration.ofMillis(expirationMillis);
-    }
 
     @Override
     public Mono<String> createSession(AuthSession authSession) {

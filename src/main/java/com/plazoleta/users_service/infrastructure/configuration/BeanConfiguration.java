@@ -10,10 +10,13 @@ import com.plazoleta.users_service.domain.service.LoginService;
 import com.plazoleta.users_service.domain.service.LogoutService;
 import com.plazoleta.users_service.domain.service.RegisterUserService;
 import com.plazoleta.users_service.domain.service.UserRegistrationValidator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.Duration;
 
 @Configuration
 public class BeanConfiguration {
@@ -59,5 +62,10 @@ public class BeanConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public Duration authTokenExpiration(@Value("${auth.token.expiration}") Long expirationMillis) {
+        return Duration.ofMillis(expirationMillis);
     }
 }

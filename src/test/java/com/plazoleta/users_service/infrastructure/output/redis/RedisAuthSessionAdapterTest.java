@@ -9,6 +9,8 @@ import org.springframework.data.redis.core.ReactiveValueOperations;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -28,7 +30,7 @@ class RedisAuthSessionAdapterTest {
 
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-        adapter = new RedisAuthSessionAdapter(redisTemplate, objectMapper, 3600000L);
+        adapter = new RedisAuthSessionAdapter(redisTemplate, objectMapper, Duration.ofMillis(3600000L));
     }
 
     @Test
