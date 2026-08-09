@@ -10,23 +10,15 @@ import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
 import com.plazoleta.users_service.domain.util.EmailNormalizer;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 public class LoginService implements LoginUseCase {
 
     private final UserPersistencePort userPersistencePort;
     private final PasswordEncoderPort passwordEncoderPort;
     private final AuthSessionPort authSessionPort;
-
-    public LoginService(
-            UserPersistencePort userPersistencePort,
-            PasswordEncoderPort passwordEncoderPort,
-            AuthSessionPort authSessionPort
-    ) {
-        this.userPersistencePort = userPersistencePort;
-        this.passwordEncoderPort = passwordEncoderPort;
-        this.authSessionPort = authSessionPort;
-    }
 
     @Override
     public Mono<AuthResult> login(LoginCommand command) {

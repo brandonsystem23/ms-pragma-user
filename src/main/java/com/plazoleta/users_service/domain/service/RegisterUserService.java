@@ -6,23 +6,15 @@ import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
 import com.plazoleta.users_service.domain.util.EmailNormalizer;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 public class RegisterUserService implements RegisterUserUseCase {
 
     private final UserPersistencePort userPersistencePort;
     private final PasswordEncoderPort passwordEncoderPort;
     private final UserRegistrationValidator userRegistrationValidator;
-
-    public RegisterUserService(
-            UserPersistencePort userPersistencePort,
-            PasswordEncoderPort passwordEncoderPort,
-            UserRegistrationValidator userRegistrationValidator
-    ) {
-        this.userPersistencePort = userPersistencePort;
-        this.passwordEncoderPort = passwordEncoderPort;
-        this.userRegistrationValidator = userRegistrationValidator;
-    }
 
     @Override
     public Mono<User> register(RegisterUserCommand command) {

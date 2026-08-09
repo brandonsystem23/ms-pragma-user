@@ -5,15 +5,13 @@ import com.plazoleta.users_service.domain.exception.DuplicateEmailException;
 import com.plazoleta.users_service.domain.exception.RoleNotFoundException;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 public class UserRegistrationValidator {
 
     private final UserPersistencePort userPersistencePort;
-
-    public UserRegistrationValidator(UserPersistencePort userPersistencePort) {
-        this.userPersistencePort = userPersistencePort;
-    }
 
     public Mono<Role> validate(String numberDocument, String email, String roleName) {
         return validateDocument(numberDocument)
