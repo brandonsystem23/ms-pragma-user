@@ -22,7 +22,7 @@ public class UserPersistenceAdapter implements UserPersistencePort {
 
     @Override
     public Mono<User> findByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndStatusTrue(email)
                 .flatMap(this::mapUserWithRole);
     }
 

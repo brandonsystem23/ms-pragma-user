@@ -65,7 +65,7 @@ class UserPersistenceAdapterTest {
                 .role(Role.builder().id(2L).name("PROPIETARIO").description("Rol propietario").build())
                 .build();
 
-        when(userRepository.findByEmail("juan@test.com")).thenReturn(Mono.just(userEntity));
+        when(userRepository.findByEmailAndStatusTrue("juan@test.com")).thenReturn(Mono.just(userEntity));
         when(roleRepository.findById(2L)).thenReturn(Mono.just(rolEntity));
         when(userEntityMapper.toDomain(userEntity, rolEntity)).thenReturn(user);
 

@@ -4,9 +4,6 @@ import com.plazoleta.users_service.application.dto.request.CreateClientRequest;
 import com.plazoleta.users_service.application.dto.request.CreateEmployeeRequest;
 import com.plazoleta.users_service.application.dto.request.CreateOwnerRequest;
 import com.plazoleta.users_service.application.dto.response.UserResponse;
-import com.plazoleta.users_service.application.mapper.ClientDtoMapper;
-import com.plazoleta.users_service.application.mapper.EmployeeDtoMapper;
-import com.plazoleta.users_service.application.mapper.OwnerDtoMapper;
 import com.plazoleta.users_service.application.mapper.UserDtoMapper;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
@@ -26,20 +23,13 @@ class UserApplicationServiceTest {
 
     private RegisterUserUseCase registerUserUseCase;
     private UserDtoMapper userDtoMapper;
-    private OwnerDtoMapper ownerDtoMapper;
-    private EmployeeDtoMapper employeeDtoMapper;
-    private ClientDtoMapper clientDtoMapper;
     private UserApplicationService userApplicationService;
 
     @BeforeEach
     void setUp() {
         registerUserUseCase = mock(RegisterUserUseCase.class);
         userDtoMapper = mock(UserDtoMapper.class);
-        ownerDtoMapper = mock(OwnerDtoMapper.class);
-        employeeDtoMapper = mock(EmployeeDtoMapper.class);
-        clientDtoMapper = mock(ClientDtoMapper.class);
-        userApplicationService = new UserApplicationService(registerUserUseCase, userDtoMapper, ownerDtoMapper,
-                employeeDtoMapper, clientDtoMapper);
+        userApplicationService = new UserApplicationService(registerUserUseCase, userDtoMapper);
     }
 
     @Test
