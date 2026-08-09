@@ -16,6 +16,7 @@ import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @RestControllerAdvice
@@ -88,7 +89,7 @@ public class GlobalExceptionHandler {
             List<String> details
     ) {
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(LocalDateTime.now(ZoneId.of("America/Lima")))
                 .status(status.value())
                 .error(status.getReasonPhrase())
                 .message(message)

@@ -11,6 +11,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Component
@@ -25,7 +26,7 @@ public class JsonAuthenticationEntryPoint implements ServerAuthenticationEntryPo
     @Override
     public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex) {
         ErrorResponse response = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
+                .timestamp(LocalDateTime.now(ZoneId.of("America/Lima")))
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .message("No autenticado o token inválido")

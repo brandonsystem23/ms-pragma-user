@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintValidatorContext;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.ZoneId;
 
 public class AdultValidator implements ConstraintValidator<Adult, LocalDate> {
 
@@ -19,7 +20,7 @@ public class AdultValidator implements ConstraintValidator<Adult, LocalDate> {
 
         return Period.between(
                 birthDate,
-                LocalDate.now()
+                LocalDate.now(ZoneId.of("America/Lima"))
         ).getYears() >= 18;
     }
 }
