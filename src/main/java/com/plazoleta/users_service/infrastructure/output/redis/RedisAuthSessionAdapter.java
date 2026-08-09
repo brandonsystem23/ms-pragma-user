@@ -29,7 +29,7 @@ public class RedisAuthSessionAdapter implements AuthSessionPort {
 
         return serialize(authSession)
                 .flatMap(json -> redisTemplate.opsForValue().set(key, json, expiration))
-                .flatMap(saved -> saved
+                .flatMap(saved -> Boolean.TRUE.equals(saved)
                         ? Mono.just(token)
                         : Mono.error(new IllegalStateException("No se pudo almacenar la sesión en Redis")));
     }
