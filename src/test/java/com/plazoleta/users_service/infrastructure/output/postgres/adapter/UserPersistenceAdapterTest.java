@@ -14,6 +14,7 @@ import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class UserPersistenceAdapterTest {
@@ -100,13 +101,21 @@ class UserPersistenceAdapterTest {
                 .description("Administrador")
                 .build();
 
+        Role role = Role.builder()
+                .id(1L)
+                .name("ADMIN")
+                .description("Administrador")
+                .build();
+
         when(roleRepository.findByName("ADMIN")).thenReturn(Mono.just(rolEntity));
+        when(userEntityMapper.toDomain(rolEntity))
+                .thenReturn(role);
 
         StepVerifier.create(adapter.findRoleByName("ADMIN"))
-                .assertNext(role -> {
-                    assert 1L == role.getId();
-                    assert "ADMIN".equals(role.getName());
-                    assert "Administrador".equals(role.getDescription());
+                .assertNext(roleFind -> {
+                    assert 1L == roleFind.getId();
+                    assert "ADMIN".equals(roleFind.getName());
+                    assert "Administrador".equals(roleFind.getDescription());
                 })
                 .verifyComplete();
     }
@@ -122,7 +131,11 @@ class UserPersistenceAdapterTest {
                 .email("ana@test.com")
                 .password("encoded-password")
                 .status(true)
-                .role(Role.builder().id(3L).name("EMPLEADO").description("Rol empleado").build())
+                .role(Role.builder()
+                        .id(3L)
+                        .name("EMPLEADO")
+                        .description("Rol empleado")
+                        .build())
                 .build();
 
         UserEntity userEntity = UserEntity.builder()
@@ -150,19 +163,52 @@ class UserPersistenceAdapterTest {
                 .roleId(3L)
                 .build();
 
-        when(userEntityMapper.toEntity(user)).thenReturn(userEntity);
-        when(userRepository.save(userEntity)).thenReturn(Mono.just(savedEntity));
+        RoleEntity roleEntity = RoleEntity.builder()
+                .id(3L)
+                .description("Rol empleado")
+                .name("EMPLEADO")
+                .build();
+
+        User expectedUser = User.builder()
+                .id(10L)
+                .firstName("Ana")
+                .lastName("Lopez")
+                .numberDocument("789456")
+                .phone("+573009998877")
+                .birthDate(LocalDate.of(1992, 5, 10))
+                .email("ana@test.com")
+                .password("encoded-password")
+                .status(true)
+                .role(Role.builder()
+                        .id(3L)
+                        .name("EMPLEADO")
+                        .description("Rol empleado")
+                        .build())
+                .build();
+
+        when(userEntityMapper.toEntity(user))
+                .thenReturn(userEntity);
+
+        when(userEntityMapper.toEntity(user.getRole()))
+                .thenReturn(roleEntity);
+
+        when(userRepository.save(userEntity))
+                .thenReturn(Mono.just(savedEntity));
+
+        when(userEntityMapper.toDomain(savedEntity, roleEntity))
+                .thenReturn(expectedUser);
 
         StepVerifier.create(adapter.save(user))
                 .assertNext(savedUser -> {
-                    assert 10L == savedUser.getId();
-                    assert "Ana".equals(savedUser.getFirstName());
-                    assert "Lopez".equals(savedUser.getLastName());
-                    assert "789456".equals(savedUser.getNumberDocument());
-                    assert "+573009998877".equals(savedUser.getPhone());
-                    assert "ana@test.com".equals(savedUser.getEmail());
-                    assert "EMPLEADO".equals(savedUser.getRole().getName());
+                    assertEquals(10L, savedUser.getId());
+                    assertEquals("Ana", savedUser.getFirstName());
+                    assertEquals("Lopez", savedUser.getLastName());
+                    assertEquals("789456", savedUser.getNumberDocument());
+                    assertEquals("+573009998877", savedUser.getPhone());
+                    assertEquals("ana@test.com", savedUser.getEmail());
+                    assertEquals("EMPLEADO", savedUser.getRole().getName());
                 })
                 .verifyComplete();
     }
+
 }

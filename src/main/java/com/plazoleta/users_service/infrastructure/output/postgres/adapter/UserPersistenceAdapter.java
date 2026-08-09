@@ -39,15 +39,15 @@ public class UserPersistenceAdapter implements UserPersistencePort {
     @Override
     public Mono<Role> findRoleByName(String name) {
         return roleRepository.findByName(name)
-                .map(this::toDomainRole);
+                .map(userEntityMapper::toDomain);
     }
 
     @Override
     public Mono<User> save(User user) {
         UserEntity userEntity = userEntityMapper.toEntity(user);
-
+        RoleEntity roleEntity = userEntityMapper.toEntity(user.getRole());
         return userRepository.save(userEntity)
-                .map(savedEntity -> toSavedDomain(user, savedEntity));
+                .map(savedEntity -> userEntityMapper.toDomain(savedEntity, roleEntity));
     }
 
     private Mono<User> mapUserWithRole(UserEntity userEntity) {
@@ -55,26 +55,4 @@ public class UserPersistenceAdapter implements UserPersistencePort {
                 .map(roleEntity -> userEntityMapper.toDomain(userEntity, roleEntity));
     }
 
-    private Role toDomainRole(RoleEntity roleEntity) {
-        return Role.builder()
-                .id(roleEntity.getId())
-                .name(roleEntity.getName())
-                .description(roleEntity.getDescription())
-                .build();
-    }
-
-    private User toSavedDomain(User originalUser, UserEntity savedEntity) {
-        return User.builder()
-                .id(savedEntity.getId())
-                .firstName(savedEntity.getFirstName())
-                .lastName(savedEntity.getLastName())
-                .numberDocument(savedEntity.getNumberDocument())
-                .phone(savedEntity.getPhone())
-                .birthDate(savedEntity.getBirthDate())
-                .email(savedEntity.getEmail())
-                .password(savedEntity.getPassword())
-                .status(savedEntity.getStatus())
-                .role(originalUser.getRole())
-                .build();
-    }
 }

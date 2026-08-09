@@ -1,5 +1,6 @@
 package com.plazoleta.users_service.infrastructure.output.postgres.mapper;
 
+import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
 import com.plazoleta.users_service.infrastructure.output.postgres.entity.RoleEntity;
 import com.plazoleta.users_service.infrastructure.output.postgres.entity.UserEntity;
@@ -26,4 +27,8 @@ public interface UserEntityMapper {
 
     @Mapping(target = "roleId", source = "role.id")
     UserEntity toEntity(User user);
+
+    Role toDomain(RoleEntity roleEntity);
+
+    RoleEntity toEntity(Role role);
 }
