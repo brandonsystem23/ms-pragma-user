@@ -3,6 +3,7 @@ package com.plazoleta.users_service.infrastructure.security.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plazoleta.users_service.infrastructure.input.rest.ErrorResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -35,10 +36,12 @@ public class JsonAuthenticationEntryPoint implements ServerAuthenticationEntryPo
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-        return exchange.getResponse().writeWith(
-                Mono.fromSupplier(() -> exchange.getResponse()
-                        .bufferFactory()
-                        .wrap(writeValueAsBytes(response)))
+        DataBuffer buffer = exchange.getResponse()
+                .bufferFactory()
+                .wrap(writeValueAsBytes(response));
+
+        return exchange.getResponse()
+                .writeWith(Mono.just(buffer)
         );
     }
 
