@@ -6,6 +6,7 @@ import com.plazoleta.users_service.infrastructure.security.handler.JsonAccessDen
 import com.plazoleta.users_service.infrastructure.security.handler.JsonAuthenticationEntryPoint;
 import com.plazoleta.users_service.infrastructure.security.session.BearerTokenAuthenticationConverter;
 import com.plazoleta.users_service.infrastructure.security.session.SessionAuthenticationManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,21 +17,13 @@ import org.springframework.security.web.server.authentication.AuthenticationWebF
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfiguration {
 
     private final AuthSessionPort authSessionPort;
     private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
     private final JsonAccessDeniedHandler jsonAccessDeniedHandler;
 
-    public SecurityConfiguration(
-            AuthSessionPort authSessionPort,
-            JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint,
-            JsonAccessDeniedHandler jsonAccessDeniedHandler
-    ) {
-        this.authSessionPort = authSessionPort;
-        this.jsonAuthenticationEntryPoint = jsonAuthenticationEntryPoint;
-        this.jsonAccessDeniedHandler = jsonAccessDeniedHandler;
-    }
 
     @Bean
     SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
