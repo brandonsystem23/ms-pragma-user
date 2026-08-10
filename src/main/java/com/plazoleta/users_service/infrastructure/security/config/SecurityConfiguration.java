@@ -43,9 +43,7 @@ public class SecurityConfiguration {
         );
 
         authenticationWebFilter.setAuthenticationFailureHandler(
-                new ServerAuthenticationEntryPointFailureHandler(
-                        jsonAuthenticationEntryPoint
-                )
+                new ServerAuthenticationEntryPointFailureHandler(jsonAuthenticationEntryPoint)
         );
 
         return http
