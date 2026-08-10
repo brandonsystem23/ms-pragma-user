@@ -2,6 +2,7 @@ package com.plazoleta.users_service.infrastructure.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plazoleta.users_service.infrastructure.input.rest.ErrorResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,13 +16,10 @@ import java.time.ZoneId;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class JsonAccessDeniedHandler implements ServerAccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
-
-    public JsonAccessDeniedHandler(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
