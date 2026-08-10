@@ -14,6 +14,7 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 @Configuration
@@ -39,6 +40,12 @@ public class SecurityConfiguration {
 
         authenticationWebFilter.setRequiresAuthenticationMatcher(
                 ServerWebExchangeMatchers.pathMatchers("/api/**")
+        );
+
+        authenticationWebFilter.setAuthenticationFailureHandler(
+                new ServerAuthenticationEntryPointFailureHandler(
+                        jsonAuthenticationEntryPoint
+                )
         );
 
         return http
