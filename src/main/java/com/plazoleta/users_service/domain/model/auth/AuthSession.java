@@ -6,6 +6,7 @@ import lombok.Builder;
 public record AuthSession(
 
         Long userId,
+        String fullName,
         String role,
         String numberDocument,
         String phone,

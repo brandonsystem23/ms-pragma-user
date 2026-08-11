@@ -2,6 +2,7 @@ package com.plazoleta.users_service.infrastructure.output.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plazoleta.users_service.domain.model.auth.AuthSession;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
@@ -10,8 +11,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -47,7 +46,7 @@ class RedisAuthSessionAdapterTest {
                 .thenReturn(Mono.just(true));
 
         StepVerifier.create(adapter.createSession(session))
-                .assertNext(token -> assertNotNull(token))
+                .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
     }
 

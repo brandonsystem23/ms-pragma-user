@@ -31,6 +31,7 @@ public class LoginService implements LoginUseCase {
                 .flatMap(user -> authSessionPort.createSession(
                                 AuthSession.builder()
                                         .userId(user.getId())
+                                        .fullName(user.getFirstName().concat(" ").concat(user.getLastName()))
                                         .role(user.getRole().getName())
                                         .numberDocument(user.getNumberDocument())
                                         .phone(user.getPhone())
