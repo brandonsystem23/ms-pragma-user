@@ -5,26 +5,25 @@ import com.plazoleta.users_service.application.dto.request.CreateEmployeeRequest
 import com.plazoleta.users_service.application.dto.request.CreateOwnerRequest;
 import com.plazoleta.users_service.application.dto.response.UserResponse;
 import com.plazoleta.users_service.application.service.UserApplicationService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
 import java.time.LocalDate;
 
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class UserControllerTest {
-
+    @Mock
     private UserApplicationService userApplicationService;
-    private UserController userController;
 
-    @BeforeEach
-    void setUp() {
-        userApplicationService = mock(UserApplicationService.class);
-        userController = new UserController(userApplicationService);
-    }
+    @InjectMocks
+    private UserController userController;
 
     @Test
     void shouldCreateOwnerSuccessfully() {
@@ -50,7 +49,7 @@ class UserControllerTest {
                 .role("PROPIETARIO")
                 .build();
 
-        when(userApplicationService.createOwner(request)).thenReturn(Mono.just(response));
+        when(userApplicationService.createOwner(any())).thenReturn(Mono.just(response));
 
         StepVerifier.create(userController.createOwner(request))
                 .expectNext(response)
@@ -79,7 +78,7 @@ class UserControllerTest {
                 .role("EMPLEADO")
                 .build();
 
-        when(userApplicationService.createEmployee(request)).thenReturn(Mono.just(response));
+        when(userApplicationService.createEmployee(any())).thenReturn(Mono.just(response));
 
         StepVerifier.create(userController.createEmployee(request))
                 .expectNext(response)
@@ -108,7 +107,7 @@ class UserControllerTest {
                 .role("CLIENTE")
                 .build();
 
-        when(userApplicationService.selfRegisterClient(request)).thenReturn(Mono.just(response));
+        when(userApplicationService.selfRegisterClient(any())).thenReturn(Mono.just(response));
 
         StepVerifier.create(userController.selfRegisterClient(request))
                 .expectNext(response)

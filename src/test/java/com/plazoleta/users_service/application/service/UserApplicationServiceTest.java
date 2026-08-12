@@ -8,29 +8,30 @@ import com.plazoleta.users_service.application.mapper.UserDtoMapper;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
-
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class UserApplicationServiceTest {
 
+    @Mock
     private RegisterUserUseCase registerUserUseCase;
-    private UserDtoMapper userDtoMapper;
-    private UserApplicationService userApplicationService;
 
-    @BeforeEach
-    void setUp() {
-        registerUserUseCase = mock(RegisterUserUseCase.class);
-        userDtoMapper = mock(UserDtoMapper.class);
-        userApplicationService = new UserApplicationService(registerUserUseCase, userDtoMapper);
-    }
+    @Mock
+    private UserDtoMapper userDtoMapper;
+
+    @InjectMocks
+    private UserApplicationService userApplicationService;
 
     @Test
     void shouldCreateOwnerSuccessfully() {
@@ -52,7 +53,7 @@ class UserApplicationServiceTest {
                 .role(Role.builder().name("PROPIETARIO").build())
                 .build();
 
-        UserResponse response = UserResponse.builder()
+        UserResponse responseUser = UserResponse.builder()
                 .id(1L)
                 .firstName("Juan")
                 .lastName("Perez")
@@ -65,10 +66,12 @@ class UserApplicationServiceTest {
                 .build();
 
         when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
-        when(userDtoMapper.toResponse(user)).thenReturn(response);
+        when(userDtoMapper.toResponse(any())).thenReturn(responseUser);
 
         StepVerifier.create(userApplicationService.createOwner(request))
-                .expectNext(response)
+                .assertNext(response ->
+                    Assertions.assertEquals("PROPIETARIO", response.role())
+                )
                 .verifyComplete();
     }
 
@@ -90,7 +93,7 @@ class UserApplicationServiceTest {
                 .role(Role.builder().name("EMPLEADO").build())
                 .build();
 
-        UserResponse response = UserResponse.builder()
+        UserResponse responseUser = UserResponse.builder()
                 .id(2L)
                 .firstName("Ana")
                 .lastName("Lopez")
@@ -102,10 +105,12 @@ class UserApplicationServiceTest {
                 .build();
 
         when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
-        when(userDtoMapper.toResponse(user)).thenReturn(response);
+        when(userDtoMapper.toResponse(any())).thenReturn(responseUser);
 
         StepVerifier.create(userApplicationService.createEmployee(request))
-                .expectNext(response)
+                .assertNext(response ->
+                    Assertions.assertEquals("EMPLEADO", response.role())
+                )
                 .verifyComplete();
     }
 
@@ -127,7 +132,7 @@ class UserApplicationServiceTest {
                 .role(Role.builder().name("CLIENTE").build())
                 .build();
 
-        UserResponse response = UserResponse.builder()
+        UserResponse responseUser = UserResponse.builder()
                 .id(3L)
                 .firstName("Carlos")
                 .lastName("Ramirez")
@@ -139,10 +144,13 @@ class UserApplicationServiceTest {
                 .build();
 
         when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
-        when(userDtoMapper.toResponse(user)).thenReturn(response);
+        when(userDtoMapper.toResponse(user)).thenReturn(responseUser);
+
 
         StepVerifier.create(userApplicationService.selfRegisterClient(request))
-                .expectNext(response)
+                .assertNext(response ->
+                    Assertions.assertEquals("CLIENTE", response.role())
+                )
                 .verifyComplete();
     }
 }

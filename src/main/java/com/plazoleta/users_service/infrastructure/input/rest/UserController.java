@@ -21,13 +21,13 @@ public class UserController {
     private final UserApplicationService userApplicationService;
 
     @PostMapping("/owners")
-    @Operation(summary = "Crear propietario", description = "Crea un usuario con role propietario. Requiere role ADMIN")
+    @Operation(summary = "Crear propietario", description = "Crea un usuario con role propietario. Requiere rol ADMIN")
     public Mono<UserResponse> createOwner(@Valid @RequestBody CreateOwnerRequest request) {
         return userApplicationService.createOwner(request);
     }
 
     @PostMapping("/employees")
-    @Operation(summary = "Crear empleado", description = "Crea un usuario con role empleado. Requiere role PROPIETARIO")
+    @Operation(summary = "Crear empleado", description = "Crea un usuario con role empleado. Requiere rol PROPIETARIO")
     public Mono<UserResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request) {
         return userApplicationService.createEmployee(request);
     }

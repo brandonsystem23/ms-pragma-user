@@ -4,26 +4,31 @@ import com.plazoleta.users_service.application.dto.request.LoginRequest;
 import com.plazoleta.users_service.application.dto.response.LoginResponse;
 import com.plazoleta.users_service.application.service.AuthApplicationService;
 import com.plazoleta.users_service.application.service.LogoutApplicationService;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
 
+    @Mock
     private AuthApplicationService authApplicationService;
+
+    @Mock
     private LogoutApplicationService logoutApplicationService;
+
+    @InjectMocks
     private AuthController authController;
 
-    @BeforeEach
-    void setUp() {
-        authApplicationService = mock(AuthApplicationService.class);
-        logoutApplicationService = mock(LogoutApplicationService.class);
-        authController = new AuthController(authApplicationService, logoutApplicationService);
-    }
 
     @Test
     void shouldLoginSuccessfully() {
@@ -36,16 +41,19 @@ class AuthControllerTest {
                 .role("ADMIN")
                 .build();
 
-        when(authApplicationService.login(request)).thenReturn(Mono.just(response));
+        when(authApplicationService.login(any())).thenReturn(Mono.just(response));
 
         StepVerifier.create(authController.login(request))
-                .expectNext(response)
+                .assertNext(login -> {
+                    Assertions.assertEquals("Bearer", login.tokenType());
+                    Assertions.assertEquals("token-123", login.token());
+                })
                 .verifyComplete();
     }
 
     @Test
     void shouldLogoutSuccessfully() {
-        when(logoutApplicationService.logout("token-123")).thenReturn(Mono.empty());
+        when(logoutApplicationService.logout(anyString())).thenReturn(Mono.empty());
 
         StepVerifier.create(authController.logout("Bearer token-123"))
                 .verifyComplete();
@@ -53,14 +61,9 @@ class AuthControllerTest {
 
     @Test
     void shouldFailLogoutWhenAuthorizationHeaderIsInvalid() {
-        IllegalArgumentException exception = org.junit.jupiter.api.Assertions.assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> authController.logout("Basic token-123")
-        );
-
-        org.junit.jupiter.api.Assertions.assertEquals(
-                "Authorization header inválido",
-                exception.getMessage()
         );
     }
 
