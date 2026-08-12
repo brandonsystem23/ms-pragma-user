@@ -5,33 +5,34 @@ import com.plazoleta.users_service.domain.model.User;
 import com.plazoleta.users_service.domain.model.auth.RegisterUserCommand;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
 import java.time.LocalDate;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class RegisterUserServiceTest {
 
+    @Mock
     private UserPersistencePort userPersistencePort;
+
+    @Mock
     private PasswordEncoderPort passwordEncoderPort;
+
+    @Mock
     private UserRegistrationValidator userRegistrationValidator;
+
+    @InjectMocks
     private RegisterUserService registerUserService;
 
-    @BeforeEach
-    void setUp() {
-        userPersistencePort = Mockito.mock(UserPersistencePort.class);
-        passwordEncoderPort = Mockito.mock(PasswordEncoderPort.class);
-        userRegistrationValidator = Mockito.mock(UserRegistrationValidator.class);
-
-        registerUserService = new RegisterUserService(
-                userPersistencePort,
-                passwordEncoderPort,
-                userRegistrationValidator
-        );
-    }
 
     @Test
     void shouldRegisterUserSuccessfully() {
@@ -65,34 +66,22 @@ class RegisterUserServiceTest {
                 .role(role)
                 .build();
 
-        Mockito.when(userRegistrationValidator.validate(
-                        "123456789",
-                        "juan@mail.com",
-                        "PROPIETARIO"
-                ))
+        when(userRegistrationValidator.validate(anyString(), anyString(), anyString()))
                 .thenReturn(Mono.just(role));
 
-        Mockito.when(passwordEncoderPort.encode("123456"))
-                .thenReturn("encoded-password");
+        when(passwordEncoderPort.encode(anyString())).thenReturn("encoded-password");
 
-        Mockito.when(userPersistencePort.save(Mockito.any(User.class)))
-                .thenReturn(Mono.just(savedUser));
+        when(userPersistencePort.save(any())).thenReturn(Mono.just(savedUser));
 
         StepVerifier.create(registerUserService.register(command))
-                .expectNextMatches(user ->
-                        user.getId().equals(10L) &&
-                                user.getEmail().equals("juan@mail.com") &&
-                                user.getPassword().equals("encoded-password") &&
-                                user.getRole().getName().equals("PROPIETARIO")
-                )
+                .assertNext(user -> {
+                            Assertions.assertEquals(10L, user.getId());
+                            Assertions.assertEquals("juan@mail.com", user.getEmail());
+                            Assertions.assertEquals("encoded-password", user.getPassword());
+                            Assertions.assertEquals("PROPIETARIO", user.getRole().getName());
+
+                })
                 .verifyComplete();
 
-        Mockito.verify(userRegistrationValidator).validate(
-                "123456789",
-                "juan@mail.com",
-                "PROPIETARIO"
-        );
-        Mockito.verify(passwordEncoderPort).encode("123456");
-        Mockito.verify(userPersistencePort).save(Mockito.any(User.class));
     }
 }

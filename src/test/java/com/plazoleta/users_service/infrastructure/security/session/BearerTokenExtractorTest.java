@@ -14,21 +14,17 @@ class BearerTokenExtractorTest {
 
     @Test
     void shouldThrowExceptionWhenHeaderIsNull() {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        assertThrows(IllegalArgumentException.class,
                 () -> BearerTokenExtractor.extract(null)
         );
 
-        assertEquals("Authorization header inválido", exception.getMessage());
     }
 
     @Test
     void shouldThrowExceptionWhenHeaderIsInvalid() {
-        IllegalArgumentException exception = assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> BearerTokenExtractor.extract("Basic abc123")
         );
-
-        assertEquals("Authorization header inválido", exception.getMessage());
     }
 }

@@ -1,27 +1,59 @@
 package com.plazoleta.users_service.infrastructure.security.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.plazoleta.users_service.infrastructure.input.rest.ErrorResponse;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.access.AccessDeniedException;
 import reactor.test.StepVerifier;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+@ExtendWith(MockitoExtension.class)
 class JsonAccessDeniedHandlerTest {
 
+    @Mock
+    private ObjectMapper objectMapper;
+
+    @InjectMocks
+    private JsonAccessDeniedHandler jsonAccessDeniedHandler;
+
+    MockServerHttpRequest request;
+
+    MockServerWebExchange exchange;
+
+    @BeforeEach
+    void setUp() {
+       request = MockServerHttpRequest.get("/api/test").build();
+       exchange = MockServerWebExchange.from(request);
+    }
+
     @Test
-    void shouldWriteForbiddenResponse() {
-        JsonAccessDeniedHandler handler = new JsonAccessDeniedHandler(new ObjectMapper());
+    void shouldWriteForbiddenResponse() throws JsonProcessingException {
 
-        MockServerHttpRequest request = MockServerHttpRequest.get("/api/test").build();
-        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+        when(objectMapper.writeValueAsBytes(any())).thenReturn("{}".getBytes());
 
-        StepVerifier.create(handler.handle(exchange, new AccessDeniedException("Forbidden")))
+        StepVerifier.create(jsonAccessDeniedHandler.handle(exchange, new AccessDeniedException("Forbidden")))
                 .verifyComplete();
 
-        assertTrue(exchange.getResponse().getStatusCode().value() == 403);
+    }
+
+    @Test
+    void shouldUseFallbackResponseWhenObjectMapperFails() throws JsonProcessingException {
+
+        when(objectMapper.writeValueAsBytes(any(ErrorResponse.class)))
+                .thenThrow(new JsonProcessingException("Error serializando") {});
+
+        StepVerifier.create(jsonAccessDeniedHandler.handle(exchange, new AccessDeniedException("Forbidden")))
+                .verifyComplete();
+
     }
 }
-

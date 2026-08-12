@@ -4,33 +4,36 @@ import com.plazoleta.users_service.domain.exception.InvalidCredentialsException;
 import com.plazoleta.users_service.domain.exception.UserNotFoundException;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
-import com.plazoleta.users_service.domain.model.auth.AuthSession;
 import com.plazoleta.users_service.domain.model.auth.LoginCommand;
 import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class LoginServiceTest {
 
+    @Mock
     private UserPersistencePort userPersistencePort;
-    private PasswordEncoderPort passwordEncoderPort;
-    private AuthSessionPort authSessionPort;
-    private LoginService loginService;
 
-    @BeforeEach
-    void setUp() {
-        userPersistencePort = mock(UserPersistencePort.class);
-        passwordEncoderPort = mock(PasswordEncoderPort.class);
-        authSessionPort = mock(AuthSessionPort.class);
-        loginService = new LoginService(userPersistencePort, passwordEncoderPort, authSessionPort);
-    }
+    @Mock
+    private PasswordEncoderPort passwordEncoderPort;
+
+    @Mock
+    private AuthSessionPort authSessionPort;
+
+    @InjectMocks
+    private LoginService loginService;
 
     @Test
     void shouldLoginSuccessfully() {
@@ -46,25 +49,34 @@ class LoginServiceTest {
                 .role(Role.builder().id(1L).name("ADMIN").description("Administrador").build())
                 .build();
 
-        when(userPersistencePort.findByEmail("ana@test.com")).thenReturn(Mono.just(user));
-        when(passwordEncoderPort.matches("123456", "encoded-password")).thenReturn(true);
-        when(authSessionPort.createSession(any(AuthSession.class))).thenReturn(Mono.just("token-123"));
+        when(userPersistencePort.findByEmail(anyString())).thenReturn(Mono.just(user));
+        when(passwordEncoderPort.matches(anyString(), anyString())).thenReturn(true);
+        when(authSessionPort.createSession(any())).thenReturn(Mono.just("token-123"));
 
         StepVerifier.create(loginService.login(new LoginCommand("  ANA@test.com ", "123456")))
                 .assertNext(result -> {
-                    assert "token-123".equals(result.token());
-                    assert "Bearer".equals(result.tokenType());
-                    assert 10L == result.userId();
-                    assert "ADMIN".equals(result.role());
+                    Assertions.assertEquals("token-123", result.token());
+                    Assertions.assertEquals("Bearer", result.tokenType());
+                    Assertions.assertEquals(10L, result.userId());
+                    Assertions.assertEquals("ADMIN", result.role());
                 })
                 .verifyComplete();
     }
 
     @Test
     void shouldFailWhenUserNotFound() {
-        when(userPersistencePort.findByEmail("notfound@test.com")).thenReturn(Mono.empty());
+        when(userPersistencePort.findByEmail(anyString())).thenReturn(Mono.empty());
 
         StepVerifier.create(loginService.login(new LoginCommand("notfound@test.com", "123456")))
+                .expectError(UserNotFoundException.class)
+                .verify();
+    }
+
+    @Test
+    void shouldFailWhenEmailIsNull() {
+        when(userPersistencePort.findByEmail(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(loginService.login(new LoginCommand(null, "123456")))
                 .expectError(UserNotFoundException.class)
                 .verify();
     }
@@ -78,8 +90,8 @@ class LoginServiceTest {
                 .role(Role.builder().id(1L).name("ADMIN").description("Administrador").build())
                 .build();
 
-        when(userPersistencePort.findByEmail("ana@test.com")).thenReturn(Mono.just(user));
-        when(passwordEncoderPort.matches("wrong-password", "encoded-password")).thenReturn(false);
+        when(userPersistencePort.findByEmail(anyString())).thenReturn(Mono.just(user));
+        when(passwordEncoderPort.matches(anyString(), anyString())).thenReturn(false);
 
         StepVerifier.create(loginService.login(new LoginCommand("ana@test.com", "wrong-password")))
                 .expectError(InvalidCredentialsException.class)

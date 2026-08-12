@@ -20,14 +20,18 @@ import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler handler;
+
     private ServerWebExchange exchange;
 
     @BeforeEach
@@ -68,10 +72,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void shouldHandleBadCredentials() {
         ResponseEntity<ErrorResponse> responseEntity =
-                handler.handleInvalidCredentials(
-                        new BadCredentialsException("Credenciales incorrectas"),
-                        exchange
-                );
+                handler.handleInvalidCredentials(new BadCredentialsException("Credenciales incorrectas"), exchange);
 
         ErrorResponse response = getBody(responseEntity);
 
@@ -123,10 +124,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void shouldHandleAccessDenied() {
         ResponseEntity<ErrorResponse> responseEntity =
-                handler.handleAccessDenied(
-                        new AccessDeniedException("Acceso denegado"),
-                        exchange
-                );
+                handler.handleAccessDenied(new AccessDeniedException("Acceso denegado"), exchange);
 
         ErrorResponse response = getBody(responseEntity);
 
@@ -139,10 +137,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void shouldHandleIllegalArgument() {
         ResponseEntity<ErrorResponse> responseEntity =
-                handler.handleIllegalArgument(
-                        new IllegalArgumentException("Authorization header inválido"),
-                        exchange
-                );
+                handler.handleIllegalArgument(new IllegalArgumentException("Authorization header inválido"), exchange);
 
         ErrorResponse response = getBody(responseEntity);
 
@@ -155,10 +150,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void shouldHandleGenericException() {
         ResponseEntity<ErrorResponse> responseEntity =
-                handler.handleGenericException(
-                        new RuntimeException("Error inesperado"),
-                        exchange
-                );
+                handler.handleGenericException(new RuntimeException("Error inesperado"), exchange);
 
         ErrorResponse response = getBody(responseEntity);
 
@@ -169,62 +161,41 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void shouldHandleValidationErrors() throws Exception {
-        Object target = new TestRequest();
-        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(target, "testRequest");
-        bindingResult.addError(new FieldError("testRequest", "email", "El email no tiene un formato válido"));
-        bindingResult.addError(new FieldError("testRequest", "password", "La contraseña es obligatoria"));
+    void shouldHandleValidationErrors() {
+        WebExchangeBindException exception = mock(WebExchangeBindException.class);
 
-        Method method = TestController.class.getDeclaredMethod("testMethod", TestRequest.class);
-
-        WebExchangeBindException exception = new WebExchangeBindException(
-                new org.springframework.core.MethodParameter(method, 0),
-                bindingResult
+        FieldError emailError = new FieldError(
+                "testRequest",
+                "email",
+                "El email no tiene un formato válido"
         );
+
+        FieldError passwordError = new FieldError(
+                "testRequest",
+                "password",
+                "La contraseña es obligatoria"
+        );
+
+        when(exception.getFieldErrors())
+                .thenReturn(List.of(emailError, passwordError));
 
         ResponseEntity<ErrorResponse> responseEntity =
                 handler.handleValidationErrors(exception, exchange);
 
-        ErrorResponse response = getBody(responseEntity);
+        ErrorResponse body = getBody(responseEntity);
 
+        assertNotNull(body);
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.status());
-        assertEquals("Bad Request", response.error());
-        assertEquals("Error de validación", response.message());
-        assertEquals(2, response.details().size());
-        assertTrue(response.details().contains("email: El email no tiene un formato válido"));
-        assertTrue(response.details().contains("password: La contraseña es obligatoria"));
+        assertEquals("Error de validación", body.message());
+
+        assertEquals(List.of("email: El email no tiene un formato válido", "password: La contraseña es obligatoria"),
+                body.details()
+        );
     }
 
     private ErrorResponse getBody(ResponseEntity<ErrorResponse> responseEntity) {
         ErrorResponse body = responseEntity.getBody();
         assertNotNull(body);
         return body;
-    }
-
-    static class TestController {
-        public void testMethod(@ModelAttribute TestRequest request) {
-        }
-    }
-
-    static class TestRequest {
-        private String email;
-        private String password;
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
     }
 }

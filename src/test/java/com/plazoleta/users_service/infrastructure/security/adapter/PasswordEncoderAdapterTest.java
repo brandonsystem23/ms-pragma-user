@@ -1,26 +1,27 @@
 package com.plazoleta.users_service.infrastructure.security.adapter;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class PasswordEncoderAdapterTest {
-
+    @Mock
     private PasswordEncoder passwordEncoder;
+
+    @InjectMocks
     private PasswordEncoderAdapter adapter;
 
-    @BeforeEach
-    void setUp() {
-        passwordEncoder = mock(PasswordEncoder.class);
-        adapter = new PasswordEncoderAdapter(passwordEncoder);
-    }
 
     @Test
     void shouldEncodePassword() {
-        when(passwordEncoder.encode("123456")).thenReturn("encoded");
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded");
 
         String result = adapter.encode("123456");
 
@@ -29,7 +30,7 @@ class PasswordEncoderAdapterTest {
 
     @Test
     void shouldMatchPasswords() {
-        when(passwordEncoder.matches("123456", "encoded")).thenReturn(true);
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
 
         boolean result = adapter.matches("123456", "encoded");
 

@@ -1,9 +1,9 @@
 package com.plazoleta.users_service.infrastructure.security.session;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import reactor.test.StepVerifier;
@@ -22,8 +22,8 @@ class BearerTokenAuthenticationConverterTest {
 
         StepVerifier.create(converter.convert(exchange))
                 .assertNext(authentication -> {
-                    assert authentication != null;
-                    assert "token-123".equals(authentication.getCredentials());
+                    Assertions.assertNotNull(authentication);
+                    Assertions.assertEquals("token-123", authentication.getCredentials());
                 })
                 .verifyComplete();
     }
