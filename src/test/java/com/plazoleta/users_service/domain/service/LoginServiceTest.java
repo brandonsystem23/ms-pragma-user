@@ -1,7 +1,8 @@
 package com.plazoleta.users_service.domain.service;
 
-import com.plazoleta.users_service.domain.exception.InvalidCredentialsException;
-import com.plazoleta.users_service.domain.exception.UserNotFoundException;
+import com.plazoleta.users_service.domain.exception.DomainErrorCode;
+import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
+import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
 import com.plazoleta.users_service.domain.model.auth.LoginCommand;
@@ -9,16 +10,17 @@ import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LoginServiceTest {
@@ -32,8 +34,17 @@ class LoginServiceTest {
     @Mock
     private AuthSessionPort authSessionPort;
 
-    @InjectMocks
     private LoginService loginService;
+
+    @BeforeEach
+    void setUp() {
+        loginService = new LoginService(
+                userPersistencePort,
+                passwordEncoderPort,
+                authSessionPort,
+                new DomainLoginValidator()
+        );
+    }
 
     @Test
     void shouldLoginSuccessfully() {
@@ -68,16 +79,26 @@ class LoginServiceTest {
         when(userPersistencePort.findByEmail(anyString())).thenReturn(Mono.empty());
 
         StepVerifier.create(loginService.login(new LoginCommand("notfound@test.com", "123456")))
-                .expectError(UserNotFoundException.class)
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(DomainException.class, error);
+
+                    DomainException exception = (DomainException) error;
+                    Assertions.assertEquals(DomainErrorCode.USER_NOT_FOUND, exception.getCode());
+                    Assertions.assertEquals(DomainErrorMessages.USER_NOT_FOUND, exception.getMessage());
+                })
                 .verify();
     }
 
     @Test
     void shouldFailWhenEmailIsNull() {
-        when(userPersistencePort.findByEmail(any())).thenReturn(Mono.empty());
-
         StepVerifier.create(loginService.login(new LoginCommand(null, "123456")))
-                .expectError(UserNotFoundException.class)
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(DomainException.class, error);
+
+                    DomainException exception = (DomainException) error;
+                    Assertions.assertEquals(DomainErrorCode.VALIDATION_ERROR, exception.getCode());
+                    Assertions.assertEquals(DomainErrorMessages.EMAIL_REQUIRED, exception.getMessage());
+                })
                 .verify();
     }
 
@@ -85,8 +106,13 @@ class LoginServiceTest {
     void shouldFailWhenPasswordIsInvalid() {
         User user = User.builder()
                 .id(10L)
+                .firstName("Ana")
+                .lastName("Lopez")
+                .numberDocument("123456")
+                .phone("+573001112233")
                 .email("ana@test.com")
                 .password("encoded-password")
+                .status(true)
                 .role(Role.builder().id(1L).name("ADMIN").description("Administrador").build())
                 .build();
 
@@ -94,7 +120,16 @@ class LoginServiceTest {
         when(passwordEncoderPort.matches(anyString(), anyString())).thenReturn(false);
 
         StepVerifier.create(loginService.login(new LoginCommand("ana@test.com", "wrong-password")))
-                .expectError(InvalidCredentialsException.class)
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(DomainException.class, error);
+
+                    DomainException exception = (DomainException) error;
+                    Assertions.assertEquals(DomainErrorCode.INVALID_CREDENTIALS, exception.getCode());
+                    Assertions.assertEquals(DomainErrorMessages.INVALID_CREDENTIALS, exception.getMessage());
+                })
                 .verify();
+
+
     }
+
 }

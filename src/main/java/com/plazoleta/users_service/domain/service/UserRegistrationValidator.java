@@ -1,8 +1,8 @@
 package com.plazoleta.users_service.domain.service;
 
-import com.plazoleta.users_service.domain.exception.DuplicateDocumentException;
-import com.plazoleta.users_service.domain.exception.DuplicateEmailException;
-import com.plazoleta.users_service.domain.exception.RoleNotFoundException;
+import com.plazoleta.users_service.domain.exception.DomainErrorCode;
+import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
+import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
 import lombok.RequiredArgsConstructor;
@@ -17,20 +17,30 @@ public class UserRegistrationValidator {
         return validateDocument(numberDocument)
                 .then(validateEmail(email))
                 .then(userPersistencePort.findRoleByName(roleName))
-                .switchIfEmpty(Mono.error(new RoleNotFoundException(roleName)));
+                .switchIfEmpty(Mono.error(new DomainException(
+                        DomainErrorCode.ROLE_NOT_FOUND,
+                        "El rol " + roleName + " no existe"
+                )));
     }
 
     private Mono<Void> validateDocument(String numberDocument) {
         return userPersistencePort.existsByNumberDocument(numberDocument)
                 .flatMap(exists -> Boolean.TRUE.equals(exists)
-                        ? Mono.error(new DuplicateDocumentException())
-                        : Mono.empty());
+                        ? Mono.error(new DomainException(
+                        DomainErrorCode.DUPLICATE_DOCUMENT,
+                        DomainErrorMessages.DUPLICATE_DOCUMENT
+                        )
+                ) : Mono.empty());
     }
 
     private Mono<Void> validateEmail(String email) {
         return userPersistencePort.existsByEmail(email)
                 .flatMap(exists -> Boolean.TRUE.equals(exists)
-                        ? Mono.error(new DuplicateEmailException())
-                        : Mono.empty());
+                        ? Mono.error(new DomainException(
+                        DomainErrorCode.DUPLICATE_EMAIL,
+                        DomainErrorMessages.DUPLICATE_EMAIL
+                        )
+                ) : Mono.empty());
     }
 }
+

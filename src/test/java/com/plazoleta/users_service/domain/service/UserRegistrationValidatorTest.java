@@ -1,8 +1,8 @@
 package com.plazoleta.users_service.domain.service;
 
-import com.plazoleta.users_service.domain.exception.DuplicateDocumentException;
-import com.plazoleta.users_service.domain.exception.DuplicateEmailException;
-import com.plazoleta.users_service.domain.exception.RoleNotFoundException;
+import com.plazoleta.users_service.domain.exception.DomainErrorCode;
+import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
+import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -24,7 +25,6 @@ class UserRegistrationValidatorTest {
 
     @InjectMocks
     private UserRegistrationValidator validator;
-
 
     @Test
     void shouldValidateSuccessfully() {
@@ -43,14 +43,14 @@ class UserRegistrationValidatorTest {
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
                 .assertNext(response ->
-                    Assertions.assertEquals("CLIENTE", response.getName())
+                        Assertions.assertEquals("CLIENTE", response.getName())
                 )
                 .verifyComplete();
     }
 
     @Test
     void shouldFailWhenDocumentAlreadyExists() {
-        Role rol = Role.builder()
+        Role role = Role.builder()
                 .id(1L)
                 .name("CLIENTE")
                 .description("Rol cliente")
@@ -61,16 +61,21 @@ class UserRegistrationValidatorTest {
         when(userPersistencePort.existsByEmail(anyString()))
                 .thenReturn(Mono.just(false));
         when(userPersistencePort.findRoleByName(anyString()))
-                .thenReturn(Mono.just(rol));
+                .thenReturn(Mono.just(role));
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
-                .expectError(DuplicateDocumentException.class)
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(DomainException.class, error);
+                    DomainException exception = (DomainException) error;
+                    Assertions.assertEquals(DomainErrorCode.DUPLICATE_DOCUMENT, exception.getCode());
+                    Assertions.assertEquals(DomainErrorMessages.DUPLICATE_DOCUMENT, exception.getMessage());
+                })
                 .verify();
     }
 
     @Test
     void shouldFailWhenEmailAlreadyExists() {
-        Role rol = Role.builder()
+        Role role = Role.builder()
                 .id(1L)
                 .name("CLIENTE")
                 .description("Rol cliente")
@@ -81,24 +86,39 @@ class UserRegistrationValidatorTest {
         when(userPersistencePort.existsByEmail(anyString()))
                 .thenReturn(Mono.just(true));
         when(userPersistencePort.findRoleByName(anyString()))
-                .thenReturn(Mono.just(rol));
+                .thenReturn(Mono.just(role));
 
         StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
-                .expectError(DuplicateEmailException.class)
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(DomainException.class, error);
+                    DomainException exception = (DomainException) error;
+                    Assertions.assertEquals(DomainErrorCode.DUPLICATE_EMAIL, exception.getCode());
+                    Assertions.assertEquals(DomainErrorMessages.DUPLICATE_EMAIL, exception.getMessage());
+                })
                 .verify();
     }
 
     @Test
     void shouldFailWhenRoleDoesNotExist() {
-        when(userPersistencePort.existsByNumberDocument(anyString()))
+        String numberDocument = "12345678";
+        String email = "test@mail.com";
+        String roleName = "ROLE_INEXISTENTE";
+
+        when(userPersistencePort.existsByNumberDocument(numberDocument))
                 .thenReturn(Mono.just(false));
-        when(userPersistencePort.existsByEmail(anyString()))
+        when(userPersistencePort.existsByEmail(email))
                 .thenReturn(Mono.just(false));
-        when(userPersistencePort.findRoleByName(anyString()))
+        when(userPersistencePort.findRoleByName(roleName))
                 .thenReturn(Mono.empty());
 
-        StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
-                .expectError(RoleNotFoundException.class)
+        StepVerifier.create(validator.validate(numberDocument, email, roleName))
+                .expectErrorSatisfies(error -> {
+                    Assertions.assertInstanceOf(DomainException.class, error);
+
+                    DomainException exception = (DomainException) error;
+                    Assertions.assertEquals(DomainErrorCode.ROLE_NOT_FOUND, exception.getCode());
+                    Assertions.assertEquals("El rol ROLE_INEXISTENTE no existe", exception.getMessage());
+                })
                 .verify();
     }
 }
