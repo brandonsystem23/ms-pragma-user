@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -21,18 +22,21 @@ public class UserController {
     private final UserApplicationService userApplicationService;
 
     @PostMapping("/owners")
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Crear propietario", description = "Crea un usuario con role propietario. Requiere rol ADMIN")
     public Mono<UserResponse> createOwner(@Valid @RequestBody CreateOwnerRequest request) {
         return userApplicationService.createOwner(request);
     }
 
     @PostMapping("/employees")
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Crear empleado", description = "Crea un usuario con role empleado. Requiere rol PROPIETARIO")
     public Mono<UserResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request) {
         return userApplicationService.createEmployee(request);
     }
 
     @PostMapping("/clients/self-register")
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Auto registro de cliente", description = "Permite que un cliente se registre sin autenticación")
     public Mono<UserResponse> selfRegisterClient(@Valid @RequestBody CreateClientRequest request) {
         return userApplicationService.selfRegisterClient(request);
