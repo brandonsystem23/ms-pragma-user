@@ -82,6 +82,6 @@ public class BeanConfiguration {
 
     @Bean
     public Duration authTokenExpiration(@Value("${auth.token.expiration}") Long expirationMillis) {
-        return Duration.ofMillis(expirationMillis);
+        return Duration.ofMinutes(expirationMillis);
     }
 }
