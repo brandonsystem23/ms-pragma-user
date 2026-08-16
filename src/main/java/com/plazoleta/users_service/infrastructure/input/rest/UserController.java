@@ -41,4 +41,11 @@ public class UserController {
     public Mono<UserResponse> selfRegisterClient(@Valid @RequestBody CreateClientRequest request) {
         return userApplicationService.selfRegisterClient(request);
     }
+
+    @GetMapping("/find")
+    @Operation(summary = "Buscar usuario", description = "Busca un usuario por su id. Requiere rol ADMIN")
+    public Mono<UserResponse> retrieveUser(@RequestParam(value = "id") Long userId) {
+        return userApplicationService.findUser(userId);
+
+    }
 }

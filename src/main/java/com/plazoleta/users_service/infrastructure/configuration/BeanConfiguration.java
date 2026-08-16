@@ -3,6 +3,7 @@ package com.plazoleta.users_service.infrastructure.configuration;
 import com.plazoleta.users_service.domain.port.in.LoginUseCase;
 import com.plazoleta.users_service.domain.port.in.LogoutUseCase;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
+import com.plazoleta.users_service.domain.port.in.RetrieveUserCase;
 import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
@@ -11,6 +12,7 @@ import com.plazoleta.users_service.domain.service.DomainUserValidator;
 import com.plazoleta.users_service.domain.service.LoginService;
 import com.plazoleta.users_service.domain.service.LogoutService;
 import com.plazoleta.users_service.domain.service.RegisterUserService;
+import com.plazoleta.users_service.domain.service.RetrieveUserService;
 import com.plazoleta.users_service.domain.service.UserRegistrationValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -72,6 +74,15 @@ public class BeanConfiguration {
                 passwordEncoderPort,
                 userRegistrationValidator,
                 domainUserValidator
+        );
+    }
+
+    @Bean
+    public RetrieveUserCase retrieveUserUseCase(
+            UserPersistencePort userPersistencePort
+    ) {
+        return new RetrieveUserService(
+                userPersistencePort
         );
     }
 

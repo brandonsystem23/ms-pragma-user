@@ -10,10 +10,6 @@ public final class AdultValidation {
     }
 
     public static boolean isAdult(LocalDate birthDate) {
-        if (birthDate == null) {
-            return false;
-        }
-
         return Period.between(
                 birthDate,
                 LocalDate.now(ZoneId.of("America/Lima"))

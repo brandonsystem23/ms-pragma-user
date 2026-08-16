@@ -8,6 +8,7 @@ import com.plazoleta.users_service.application.mapper.UserDtoMapper;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
+import com.plazoleta.users_service.domain.port.in.RetrieveUserCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,7 @@ import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,6 +28,9 @@ class UserApplicationServiceTest {
 
     @Mock
     private RegisterUserUseCase registerUserUseCase;
+
+    @Mock
+    private RetrieveUserCase retrieveUserCase;
 
     @Mock
     private UserDtoMapper userDtoMapper;
@@ -150,6 +155,41 @@ class UserApplicationServiceTest {
         StepVerifier.create(userApplicationService.selfRegisterClient(request))
                 .assertNext(response ->
                     Assertions.assertEquals("CLIENTE", response.role())
+                )
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldFindUserSuccessfully() {
+        User user = User.builder()
+                .id(3L)
+                .firstName("Carlos")
+                .lastName("Ramirez")
+                .numberDocument("456789")
+                .phone("+573007776655")
+                .email("client@test.com")
+                .status(true)
+                .role(Role.builder().name("PROPIETARIO").build())
+                .build();
+
+        UserResponse responseUser = UserResponse.builder()
+                .id(3L)
+                .firstName("Carlos")
+                .lastName("Ramirez")
+                .numberDocument("456789")
+                .phone("+573007776655")
+                .email("client@test.com")
+                .status(true)
+                .role("PROPIETARIO")
+                .build();
+
+        when(retrieveUserCase.find(anyLong())).thenReturn(Mono.just(user));
+        when(userDtoMapper.toResponse(user)).thenReturn(responseUser);
+
+
+        StepVerifier.create(userApplicationService.findUser(1L))
+                .assertNext(response ->
+                        Assertions.assertEquals("PROPIETARIO", response.role())
                 )
                 .verifyComplete();
     }

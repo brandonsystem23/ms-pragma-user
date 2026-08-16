@@ -13,10 +13,6 @@ public final class EmailValidator {
     }
 
     public static boolean isValid(String email) {
-        if (email == null) {
-            return false;
-        }
-
         String normalizedEmail = EmailNormalizer.normalize(email);
 
         return !normalizedEmail.isEmpty()

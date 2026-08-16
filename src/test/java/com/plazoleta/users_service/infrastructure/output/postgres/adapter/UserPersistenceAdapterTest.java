@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import java.time.LocalDate;
+import java.time.Month;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +42,7 @@ class UserPersistenceAdapterTest {
                 .lastName("Perez")
                 .numberDocument("123456")
                 .phone("+573001112233")
-                .birthDate(LocalDate.of(1990, 1, 1))
+                .birthDate(LocalDate.of(1990, Month.JANUARY, 1))
                 .email("juan@test.com")
                 .password("encoded")
                 .status(true)
@@ -60,7 +61,7 @@ class UserPersistenceAdapterTest {
                 .lastName("Perez")
                 .numberDocument("123456")
                 .phone("+573001112233")
-                .birthDate(LocalDate.of(1990, 1, 1))
+                .birthDate(LocalDate.of(1990, Month.JANUARY, 1))
                 .email("juan@test.com")
                 .password("encoded")
                 .status(true)
@@ -128,7 +129,7 @@ class UserPersistenceAdapterTest {
                 .lastName("Lopez")
                 .numberDocument("789456")
                 .phone("+573009998877")
-                .birthDate(LocalDate.of(1992, 5, 10))
+                .birthDate(LocalDate.of(1992, Month.MAY, 10))
                 .email("ana@test.com")
                 .password("encoded-password")
                 .status(true)
@@ -144,7 +145,7 @@ class UserPersistenceAdapterTest {
                 .lastName("Lopez")
                 .numberDocument("789456")
                 .phone("+573009998877")
-                .birthDate(LocalDate.of(1992, 5, 10))
+                .birthDate(LocalDate.of(1992, Month.MAY, 10))
                 .email("ana@test.com")
                 .password("encoded-password")
                 .status(true)
@@ -157,7 +158,7 @@ class UserPersistenceAdapterTest {
                 .lastName("Lopez")
                 .numberDocument("789456")
                 .phone("+573009998877")
-                .birthDate(LocalDate.of(1992, 5, 10))
+                .birthDate(LocalDate.of(1992, Month.MAY, 10))
                 .email("ana@test.com")
                 .password("encoded-password")
                 .status(true)
@@ -176,7 +177,7 @@ class UserPersistenceAdapterTest {
                 .lastName("Lopez")
                 .numberDocument("789456")
                 .phone("+573009998877")
-                .birthDate(LocalDate.of(1992, 5, 10))
+                .birthDate(LocalDate.of(1992, Month.MAY, 10))
                 .email("ana@test.com")
                 .password("encoded-password")
                 .status(true)
@@ -211,5 +212,49 @@ class UserPersistenceAdapterTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    void shouldFindUserByIdSuccessfully() {
+        UserEntity userEntity = UserEntity.builder()
+                .id(1L)
+                .firstName("Juan")
+                .lastName("Perez")
+                .numberDocument("123456")
+                .phone("+573001112233")
+                .birthDate(LocalDate.of(1990, Month.JANUARY, 1))
+                .email("juan@test.com")
+                .password("encoded")
+                .status(true)
+                .roleId(2L)
+                .build();
+
+        RoleEntity rolEntity = RoleEntity.builder()
+                .id(2L)
+                .name("PROPIETARIO")
+                .description("Rol propietario")
+                .build();
+
+        User user = User.builder()
+                .id(1L)
+                .firstName("Juan")
+                .lastName("Perez")
+                .numberDocument("123456")
+                .phone("+573001112233")
+                .birthDate(LocalDate.of(1990, Month.JANUARY, 1))
+                .email("juan@test.com")
+                .password("encoded")
+                .status(true)
+                .role(Role.builder().id(2L).name("PROPIETARIO").description("Rol propietario").build())
+                .build();
+
+        when(userRepository.findByIdAndStatusTrue(anyLong())).thenReturn(Mono.just(userEntity));
+        when(roleRepository.findById(anyLong())).thenReturn(Mono.just(rolEntity));
+        when(userEntityMapper.toDomain(any(), any())).thenReturn(user);
+
+        StepVerifier.create(adapter.findById(1L))
+                .expectNext(user)
+                .verifyComplete();
+    }
+
 
 }
