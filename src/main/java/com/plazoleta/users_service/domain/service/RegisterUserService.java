@@ -15,30 +15,36 @@ public class RegisterUserService implements RegisterUserUseCase {
     private final UserPersistencePort userPersistencePort;
     private final PasswordEncoderPort passwordEncoderPort;
     private final UserRegistrationValidator userRegistrationValidator;
+    private final DomainUserValidator domainUserValidator;
 
     @Override
     public Mono<User> register(RegisterUserCommand command) {
-        String normalizedEmail = EmailNormalizer.normalize(command.email());
+        return Mono.defer(() -> {
 
-        return userRegistrationValidator.validate(
-                        command.numberDocument(),
-                        normalizedEmail,
-                        command.roleName()
-                )
-                .flatMap(role -> {
-                    User user = User.builder()
-                            .firstName(command.firstName())
-                            .lastName(command.lastName())
-                            .numberDocument(command.numberDocument())
-                            .phone(command.phone())
-                            .birthDate(command.birthDate())
-                            .email(normalizedEmail)
-                            .password(passwordEncoderPort.encode(command.password()))
-                            .status(true)
-                            .role(role)
-                            .build();
+            String normalizedEmail = EmailNormalizer.normalize(command.email());
 
-                    return userPersistencePort.save(user);
-                });
+            domainUserValidator.validateForRegister(command);
+
+            return userRegistrationValidator.validate(
+                            command.numberDocument(),
+                            normalizedEmail,
+                            command.roleName()
+                    )
+                    .flatMap(role -> {
+                        User user = User.builder()
+                                .firstName(command.firstName())
+                                .lastName(command.lastName())
+                                .numberDocument(command.numberDocument())
+                                .phone(command.phone())
+                                .birthDate(command.birthDate())
+                                .email(normalizedEmail)
+                                .password(passwordEncoderPort.encode(command.password()))
+                                .status(true)
+                                .role(role)
+                                .build();
+
+                        return userPersistencePort.save(user);
+                    });
+        });
     }
 }

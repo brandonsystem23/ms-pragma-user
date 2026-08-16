@@ -50,6 +50,12 @@ public class UserPersistenceAdapter implements UserPersistencePort {
                 .map(savedEntity -> userEntityMapper.toDomain(savedEntity, roleEntity));
     }
 
+    @Override
+    public Mono<User> findById(Long id) {
+        return userRepository.findByIdAndStatusTrue(id)
+                .flatMap(this::mapUserWithRole);
+    }
+
     private Mono<User> mapUserWithRole(UserEntity userEntity) {
         return roleRepository.findById(userEntity.getRoleId())
                 .map(roleEntity -> userEntityMapper.toDomain(userEntity, roleEntity));

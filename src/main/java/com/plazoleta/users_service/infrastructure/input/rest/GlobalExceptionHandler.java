@@ -1,14 +1,10 @@
 package com.plazoleta.users_service.infrastructure.input.rest;
 
-import com.plazoleta.users_service.domain.exception.DuplicateDocumentException;
-import com.plazoleta.users_service.domain.exception.DuplicateEmailException;
-import com.plazoleta.users_service.domain.exception.InvalidCredentialsException;
-import com.plazoleta.users_service.domain.exception.RoleNotFoundException;
-import com.plazoleta.users_service.domain.exception.UserNotFoundException;
+import com.plazoleta.users_service.domain.exception.DomainErrorCode;
+import com.plazoleta.users_service.domain.exception.DomainException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -22,24 +18,10 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex, ServerWebExchange exchange) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), exchange, List.of());
-    }
-
-    @ExceptionHandler({InvalidCredentialsException.class, BadCredentialsException.class})
-    public ResponseEntity<ErrorResponse> handleInvalidCredentials(Exception ex, ServerWebExchange exchange) {
-        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), exchange, List.of());
-    }
-
-    @ExceptionHandler({DuplicateEmailException.class, DuplicateDocumentException.class})
-    public ResponseEntity<ErrorResponse> handleDuplicateData(RuntimeException ex, ServerWebExchange exchange) {
-        return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), exchange, List.of());
-    }
-
-    @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleRoleNotFound(RoleNotFoundException ex, ServerWebExchange exchange) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), exchange, List.of());
+    @ExceptionHandler(DomainException.class)
+    public ResponseEntity<ErrorResponse> handleDomainException(DomainException ex, ServerWebExchange exchange) {
+        HttpStatus status = mapStatus(ex.getCode());
+        return buildResponse(status, ex.getMessage(), exchange, List.of());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -80,6 +62,16 @@ public class GlobalExceptionHandler {
                 exchange,
                 List.of()
         );
+    }
+
+    private HttpStatus mapStatus(DomainErrorCode code) {
+        return switch (code) {
+            case VALIDATION_ERROR, DUPLICATE_DOCUMENT, DUPLICATE_EMAIL -> HttpStatus.BAD_REQUEST;
+            case INVALID_CREDENTIALS -> HttpStatus.UNAUTHORIZED;
+            case USER_NOT_FOUND, ROLE_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case ACCESS_DENIED -> HttpStatus.FORBIDDEN;
+            case INTERNAL_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+        };
     }
 
     private ResponseEntity<ErrorResponse> buildResponse(

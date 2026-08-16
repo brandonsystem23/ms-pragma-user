@@ -15,6 +15,7 @@ import reactor.test.StepVerifier;
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -110,6 +111,26 @@ class UserControllerTest {
         when(userApplicationService.selfRegisterClient(any())).thenReturn(Mono.just(response));
 
         StepVerifier.create(userController.selfRegisterClient(request))
+                .expectNext(response)
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldRetrieveUserSuccessfully() {
+        UserResponse response = UserResponse.builder()
+                .id(3L)
+                .firstName("Carlos")
+                .lastName("Ramirez")
+                .numberDocument("456789")
+                .phone("+573007776655")
+                .email("client@test.com")
+                .status(true)
+                .role("CLIENTE")
+                .build();
+
+        when(userApplicationService.findUser(anyLong())).thenReturn(Mono.just(response));
+
+        StepVerifier.create(userController.retrieveUser(1L))
                 .expectNext(response)
                 .verifyComplete();
     }

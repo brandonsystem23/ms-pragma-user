@@ -15,4 +15,6 @@ public interface UserPersistencePort {
     Mono<Role> findRoleByName(String name);
 
     Mono<User> save(User user);
+
+    Mono<User> findById(Long id);
 }

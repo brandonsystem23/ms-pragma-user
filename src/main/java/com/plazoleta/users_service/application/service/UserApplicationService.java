@@ -6,6 +6,7 @@ import com.plazoleta.users_service.application.dto.request.CreateOwnerRequest;
 import com.plazoleta.users_service.application.dto.response.UserResponse;
 import com.plazoleta.users_service.application.mapper.UserDtoMapper;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
+import com.plazoleta.users_service.domain.port.in.RetrieveUserCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 public class UserApplicationService {
 
     private final RegisterUserUseCase registerUserUseCase;
+    private final RetrieveUserCase retrieveUserCase;
     private final UserDtoMapper userDtoMapper;
 
     public Mono<UserResponse> createOwner(CreateOwnerRequest request) {
@@ -29,6 +31,11 @@ public class UserApplicationService {
 
     public Mono<UserResponse> selfRegisterClient(CreateClientRequest request) {
         return registerUserUseCase.register(userDtoMapper.toCommand(request))
+                .map(userDtoMapper::toResponse);
+    }
+
+    public Mono<UserResponse> findUser(Long id) {
+        return retrieveUserCase.find(id)
                 .map(userDtoMapper::toResponse);
     }
 }

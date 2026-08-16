@@ -3,12 +3,16 @@ package com.plazoleta.users_service.infrastructure.configuration;
 import com.plazoleta.users_service.domain.port.in.LoginUseCase;
 import com.plazoleta.users_service.domain.port.in.LogoutUseCase;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
+import com.plazoleta.users_service.domain.port.in.RetrieveUserCase;
 import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
+import com.plazoleta.users_service.domain.service.DomainLoginValidator;
+import com.plazoleta.users_service.domain.service.DomainUserValidator;
 import com.plazoleta.users_service.domain.service.LoginService;
 import com.plazoleta.users_service.domain.service.LogoutService;
 import com.plazoleta.users_service.domain.service.RegisterUserService;
+import com.plazoleta.users_service.domain.service.RetrieveUserService;
 import com.plazoleta.users_service.domain.service.UserRegistrationValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,15 +26,27 @@ import java.time.Duration;
 public class BeanConfiguration {
 
     @Bean
+    public DomainUserValidator domainUserValidator() {
+        return new DomainUserValidator();
+    }
+
+    @Bean
+    public DomainLoginValidator domainLoginValidator() {
+        return new DomainLoginValidator();
+    }
+
+    @Bean
     public LoginUseCase loginUseCase(
             UserPersistencePort userPersistencePort,
             PasswordEncoderPort passwordEncoderPort,
-            AuthSessionPort authSessionPort
+            AuthSessionPort authSessionPort,
+            DomainLoginValidator domainLoginValidator
     ) {
         return new LoginService(
                 userPersistencePort,
                 passwordEncoderPort,
-                authSessionPort
+                authSessionPort,
+                domainLoginValidator
         );
     }
 
@@ -50,12 +66,23 @@ public class BeanConfiguration {
     public RegisterUserUseCase registerUserUseCase(
             UserPersistencePort userPersistencePort,
             PasswordEncoderPort passwordEncoderPort,
-            UserRegistrationValidator userRegistrationValidator
+            UserRegistrationValidator userRegistrationValidator,
+            DomainUserValidator domainUserValidator
     ) {
         return new RegisterUserService(
                 userPersistencePort,
                 passwordEncoderPort,
-                userRegistrationValidator
+                userRegistrationValidator,
+                domainUserValidator
+        );
+    }
+
+    @Bean
+    public RetrieveUserCase retrieveUserUseCase(
+            UserPersistencePort userPersistencePort
+    ) {
+        return new RetrieveUserService(
+                userPersistencePort
         );
     }
 
@@ -66,6 +93,6 @@ public class BeanConfiguration {
 
     @Bean
     public Duration authTokenExpiration(@Value("${auth.token.expiration}") Long expirationMillis) {
-        return Duration.ofMillis(expirationMillis);
+        return Duration.ofMinutes(expirationMillis);
     }
 }
