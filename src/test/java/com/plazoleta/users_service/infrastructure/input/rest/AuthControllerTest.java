@@ -38,7 +38,7 @@ class AuthControllerTest {
                 .token("token-123")
                 .tokenType("Bearer")
                 .userId(1L)
-                .role("ADMIN")
+                .role("ADMINISTRADOR")
                 .build();
 
         when(authApplicationService.login(any())).thenReturn(Mono.just(response));

@@ -28,7 +28,7 @@ class SessionAuthenticationManagerTest {
     void shouldAuthenticateSuccessfully() {
         AuthSession session = AuthSession.builder()
                 .userId(1L)
-                .role("ADMIN")
+                .role("ADMINISTRADOR")
                 .numberDocument("123456")
                 .phone("+573001112233")
                 .email("admin@test.com")
@@ -46,7 +46,7 @@ class SessionAuthenticationManagerTest {
 
                     Assertions.assertTrue(
                             result.getAuthorities().stream()
-                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))
+                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRADOR"))
                     );
                 })
                 .verifyComplete();
