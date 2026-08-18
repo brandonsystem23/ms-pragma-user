@@ -30,7 +30,7 @@ class AuthApplicationServiceTest {
                 .token("token-123")
                 .tokenType("Bearer")
                 .userId(1L)
-                .role("ADMIN")
+                .role("ADMINISTRADOR")
                 .build();
 
         when(loginUseCase.login(any()))
@@ -41,7 +41,7 @@ class AuthApplicationServiceTest {
                     Assertions.assertEquals("token-123", response.token());
                     Assertions.assertEquals("Bearer", response.tokenType());
                     Assertions.assertEquals(1L, response.userId());
-                    Assertions.assertEquals("ADMIN", response.role());
+                    Assertions.assertEquals("ADMINISTRADOR", response.role());
                 })
                 .verifyComplete();
     }
@@ -54,7 +54,7 @@ class AuthApplicationServiceTest {
                 .token("token-123")
                 .tokenType(null)
                 .userId(1L)
-                .role("ADMIN")
+                .role("ADMINISTRADOR")
                 .build();
 
         when(loginUseCase.login(any()))
@@ -65,7 +65,7 @@ class AuthApplicationServiceTest {
                     Assertions.assertEquals("token-123", response.token());
                     Assertions.assertEquals("Bearer", response.tokenType());
                     Assertions.assertEquals(1L, response.userId());
-                    Assertions.assertEquals("ADMIN", response.role());
+                    Assertions.assertEquals("ADMINISTRADOR", response.role());
                 })
                 .verifyComplete();
     }

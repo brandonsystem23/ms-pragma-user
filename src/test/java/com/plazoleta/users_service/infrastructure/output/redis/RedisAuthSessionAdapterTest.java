@@ -46,7 +46,7 @@ class RedisAuthSessionAdapterTest {
     void shouldCreateSessionSuccessfully() throws JsonProcessingException {
         AuthSession session = AuthSession.builder()
                 .userId(1L)
-                .role("ADMIN")
+                .role("ADMINISTRADOR")
                 .numberDocument("123456")
                 .phone("+573001112233")
                 .email("admin@test.com")
@@ -70,7 +70,7 @@ class RedisAuthSessionAdapterTest {
     void shouldFindSessionByTokenSuccessfully() throws Exception {
         AuthSession session = AuthSession.builder()
                 .userId(1L)
-                .role("ADMIN")
+                .role("ADMINISTRADOR")
                 .numberDocument("123456")
                 .phone("+573001112233")
                 .email("admin@test.com")
@@ -90,7 +90,7 @@ class RedisAuthSessionAdapterTest {
         StepVerifier.create(adapter.findByToken("test-token"))
                 .assertNext(found -> {
                     Assertions.assertEquals(1L, found.userId());
-                    Assertions.assertEquals("ADMIN", found.role());
+                    Assertions.assertEquals("ADMINISTRADOR", found.role());
                     Assertions.assertEquals("123456", found.numberDocument());
                 })
                 .verifyComplete();
@@ -112,7 +112,7 @@ class RedisAuthSessionAdapterTest {
 
         AuthSession session = AuthSession.builder()
                 .userId(1L)
-                .role("ADMIN")
+                .role("ADMINISTRADOR")
                 .numberDocument("123456")
                 .phone("+573001112233")
                 .email("admin@test.com")
@@ -139,7 +139,7 @@ class RedisAuthSessionAdapterTest {
 
         AuthSession session = AuthSession.builder()
                 .userId(1L)
-                .role("ADMIN")
+                .role("ADMINISTRADOR")
                 .numberDocument("123456")
                 .phone("+573001112233")
                 .email("admin@test.com")

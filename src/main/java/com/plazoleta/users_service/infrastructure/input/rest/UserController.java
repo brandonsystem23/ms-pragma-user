@@ -23,7 +23,7 @@ public class UserController {
 
     @PostMapping("/owners")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Crear propietario", description = "Crea un usuario con role propietario. Requiere rol ADMIN")
+    @Operation(summary = "Crear propietario", description = "Crea un usuario con role propietario. Requiere rol ADMINISTRADOR")
     public Mono<UserResponse> createOwner(@Valid @RequestBody CreateOwnerRequest request) {
         return userApplicationService.createOwner(request);
     }
@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @GetMapping("/find")
-    @Operation(summary = "Buscar usuario", description = "Busca un usuario por su id. Requiere rol ADMIN")
+    @Operation(summary = "Buscar usuario", description = "Busca un usuario por su id. Requiere rol ADMINISTRADOR")
     public Mono<UserResponse> retrieveUser(@RequestParam(value = "id") Long userId) {
         return userApplicationService.findUser(userId);
 

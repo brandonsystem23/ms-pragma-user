@@ -99,13 +99,13 @@ class UserPersistenceAdapterTest {
     void shouldFindRoleByNameSuccessfully() {
         RoleEntity rolEntity = RoleEntity.builder()
                 .id(1L)
-                .name("ADMIN")
+                .name("ADMINISTRADOR")
                 .description("Administrador")
                 .build();
 
         Role role = Role.builder()
                 .id(1L)
-                .name("ADMIN")
+                .name("ADMINISTRADOR")
                 .description("Administrador")
                 .build();
 
@@ -113,10 +113,10 @@ class UserPersistenceAdapterTest {
         when(userEntityMapper.toDomain(any()))
                 .thenReturn(role);
 
-        StepVerifier.create(adapter.findRoleByName("ADMIN"))
+        StepVerifier.create(adapter.findRoleByName("ADMINISTRADOR"))
                 .assertNext(roleFind -> {
                     Assertions.assertEquals(1L, roleFind.getId());
-                    Assertions.assertEquals("ADMIN", roleFind.getName());
+                    Assertions.assertEquals("ADMINISTRADOR", roleFind.getName());
                     Assertions.assertEquals("Administrador", roleFind.getDescription());
                 })
                 .verifyComplete();

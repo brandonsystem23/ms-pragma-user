@@ -57,7 +57,7 @@ class LoginServiceTest {
                 .email("ana@test.com")
                 .password("encoded-password")
                 .status(true)
-                .role(Role.builder().id(1L).name("ADMIN").description("Administrador").build())
+                .role(Role.builder().id(1L).name("ADMINISTRADOR").description("Administrador").build())
                 .build();
 
         when(userPersistencePort.findByEmail(anyString())).thenReturn(Mono.just(user));
@@ -69,7 +69,7 @@ class LoginServiceTest {
                     Assertions.assertEquals("token-123", result.token());
                     Assertions.assertEquals("Bearer", result.tokenType());
                     Assertions.assertEquals(10L, result.userId());
-                    Assertions.assertEquals("ADMIN", result.role());
+                    Assertions.assertEquals("ADMINISTRADOR", result.role());
                 })
                 .verifyComplete();
     }
@@ -113,7 +113,7 @@ class LoginServiceTest {
                 .email("ana@test.com")
                 .password("encoded-password")
                 .status(true)
-                .role(Role.builder().id(1L).name("ADMIN").description("Administrador").build())
+                .role(Role.builder().id(1L).name("ADMINISTRADOR").description("Administrador").build())
                 .build();
 
         when(userPersistencePort.findByEmail(anyString())).thenReturn(Mono.just(user));
