@@ -18,9 +18,10 @@ public class RegisterUserService implements RegisterUserUseCase {
     private final PasswordEncoderPort passwordEncoderPort;
     private final UserRegistrationValidator userRegistrationValidator;
     private final DomainUserValidator domainUserValidator;
+    private final AssignEmployeeToRestaurantService assignEmployeeToRestaurantService;
 
     @Override
-    public Mono<User> register(RegisterUserCommand command) {
+    public Mono<User> register(RegisterUserCommand command, Long ownerId) {
         return Mono.defer(() -> {
 
             String normalizedEmail = EmailNormalizer.normalize(command.email());
@@ -46,6 +47,15 @@ public class RegisterUserService implements RegisterUserUseCase {
                                 .build();
 
                         return userPersistencePort.save(user);
+                    })
+                    .flatMap(user -> {
+                        if (ownerId != null) {
+                            return assignEmployeeToRestaurantService
+                                    .assign(ownerId, user.getId())
+                                    .thenReturn(user);
+                        }
+
+                        return Mono.just(user);
                     });
         });
     }

@@ -7,7 +7,6 @@ import com.plazoleta.users_service.application.dto.response.UserResponse;
 import com.plazoleta.users_service.application.mapper.UserDtoMapper;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
 import com.plazoleta.users_service.domain.port.in.RetrieveUserCase;
-import com.plazoleta.users_service.domain.service.AssignEmployeeToRestaurantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -19,22 +18,19 @@ public class UserApplicationService {
     private final RegisterUserUseCase registerUserUseCase;
     private final RetrieveUserCase retrieveUserCase;
     private final UserDtoMapper userDtoMapper;
-    private final AssignEmployeeToRestaurantService assignEmployeeToRestaurantService;
 
     public Mono<UserResponse> createOwner(CreateOwnerRequest request) {
-        return registerUserUseCase.register(userDtoMapper.toCommand(request))
+        return registerUserUseCase.register(userDtoMapper.toCommand(request), null)
                 .map(userDtoMapper::toResponse);
     }
 
     public Mono<UserResponse> createEmployee(CreateEmployeeRequest request, Long ownerId) {
-        return registerUserUseCase.register(userDtoMapper.toCommand(request))
-                .flatMap(user -> assignEmployeeToRestaurantService.assign(ownerId, user.getId())
-                        .thenReturn(user))
+        return registerUserUseCase.register(userDtoMapper.toCommand(request), ownerId)
                 .map(userDtoMapper::toResponse);
     }
 
     public Mono<UserResponse> selfRegisterClient(CreateClientRequest request) {
-        return registerUserUseCase.register(userDtoMapper.toCommand(request))
+        return registerUserUseCase.register(userDtoMapper.toCommand(request), null)
                 .map(userDtoMapper::toResponse);
     }
 

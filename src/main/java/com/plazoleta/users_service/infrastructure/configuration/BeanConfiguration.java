@@ -69,13 +69,15 @@ public class BeanConfiguration {
             UserPersistencePort userPersistencePort,
             PasswordEncoderPort passwordEncoderPort,
             UserRegistrationValidator userRegistrationValidator,
-            DomainUserValidator domainUserValidator
+            DomainUserValidator domainUserValidator,
+            AssignEmployeeToRestaurantService assignEmployeeToRestaurantService
     ) {
         return new RegisterUserService(
                 userPersistencePort,
                 passwordEncoderPort,
                 userRegistrationValidator,
-                domainUserValidator
+                domainUserValidator,
+                assignEmployeeToRestaurantService
         );
     }
 

@@ -9,7 +9,6 @@ import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
 import com.plazoleta.users_service.domain.port.in.RetrieveUserCase;
-import com.plazoleta.users_service.domain.service.AssignEmployeeToRestaurantService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,9 +36,6 @@ class UserApplicationServiceTest {
 
     @Mock
     private UserDtoMapper userDtoMapper;
-
-    @Mock
-    private AssignEmployeeToRestaurantService assignEmployeeToRestaurantService;
 
     @InjectMocks
     private UserApplicationService userApplicationService;
@@ -76,7 +72,7 @@ class UserApplicationServiceTest {
                 .role("PROPIETARIO")
                 .build();
 
-        when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
+        when(registerUserUseCase.register(any(), any())).thenReturn(Mono.just(user));
         when(userDtoMapper.toResponse(any())).thenReturn(responseUser);
 
         StepVerifier.create(userApplicationService.createOwner(request))
@@ -115,8 +111,7 @@ class UserApplicationServiceTest {
                 .role("EMPLEADO")
                 .build();
 
-        when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
-        when(assignEmployeeToRestaurantService.assign(5L, 2L)).thenReturn(Mono.empty());
+        when(registerUserUseCase.register(any(), any())).thenReturn(Mono.just(user));
         when(userDtoMapper.toResponse(any())).thenReturn(responseUser);
 
         StepVerifier.create(userApplicationService.createEmployee(request, 5L))
@@ -155,7 +150,7 @@ class UserApplicationServiceTest {
                 .role("CLIENTE")
                 .build();
 
-        when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
+        when(registerUserUseCase.register(any(), any())).thenReturn(Mono.just(user));
         when(userDtoMapper.toResponse(user)).thenReturn(responseUser);
 
         StepVerifier.create(userApplicationService.selfRegisterClient(request))
