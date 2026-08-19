@@ -5,6 +5,8 @@ import com.plazoleta.users_service.domain.model.auth.RegisterUserCommand;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
+import com.plazoleta.users_service.domain.service.validation.DomainUserValidator;
+import com.plazoleta.users_service.domain.service.validation.UserRegistrationValidator;
 import com.plazoleta.users_service.domain.util.EmailNormalizer;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;

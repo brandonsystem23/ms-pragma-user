@@ -19,6 +19,7 @@ public final class DomainErrorMessages {
     public static final String DUPLICATE_EMAIL = "El email ya está registrado";
     public static final String INVALID_CREDENTIALS = "Credenciales inválidas";
     public static final String USER_NOT_FOUND = "Usuario no encontrado";
+    public static final String INVALID_RESTAURANT = "No se encontró un restaurante asociado al propietario";
 
     private DomainErrorMessages() {
     }

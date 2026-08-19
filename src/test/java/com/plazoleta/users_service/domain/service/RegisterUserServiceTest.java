@@ -5,6 +5,8 @@ import com.plazoleta.users_service.domain.model.User;
 import com.plazoleta.users_service.domain.model.auth.RegisterUserCommand;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
+import com.plazoleta.users_service.domain.service.validation.DomainUserValidator;
+import com.plazoleta.users_service.domain.service.validation.UserRegistrationValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

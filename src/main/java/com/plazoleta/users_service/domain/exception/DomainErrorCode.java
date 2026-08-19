@@ -8,5 +8,6 @@ public enum DomainErrorCode {
     USER_NOT_FOUND,
     ROLE_NOT_FOUND,
     ACCESS_DENIED,
+    RESTAURANT_NOT_FOUND,
     INTERNAL_ERROR
 }

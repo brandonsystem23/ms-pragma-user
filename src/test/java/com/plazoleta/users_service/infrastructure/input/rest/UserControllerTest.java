@@ -10,8 +10,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -68,6 +71,8 @@ class UserControllerTest {
                 "123456"
         );
 
+        Authentication authentication = new UsernamePasswordAuthenticationToken(5L, null);
+
         UserResponse response = UserResponse.builder()
                 .id(2L)
                 .firstName("Ana")
@@ -79,9 +84,9 @@ class UserControllerTest {
                 .role("EMPLEADO")
                 .build();
 
-        when(userApplicationService.createEmployee(any())).thenReturn(Mono.just(response));
+        when(userApplicationService.createEmployee(any(), anyLong())).thenReturn(Mono.just(response));
 
-        StepVerifier.create(userController.createEmployee(request))
+        StepVerifier.create(userController.createEmployee(request, authentication))
                 .expectNext(response)
                 .verifyComplete();
     }

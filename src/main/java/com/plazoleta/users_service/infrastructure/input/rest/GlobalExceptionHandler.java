@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
         return switch (code) {
             case VALIDATION_ERROR, DUPLICATE_DOCUMENT, DUPLICATE_EMAIL -> HttpStatus.BAD_REQUEST;
             case INVALID_CREDENTIALS -> HttpStatus.UNAUTHORIZED;
-            case USER_NOT_FOUND, ROLE_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case USER_NOT_FOUND, ROLE_NOT_FOUND, RESTAURANT_NOT_FOUND -> HttpStatus.NOT_FOUND;
             case ACCESS_DENIED -> HttpStatus.FORBIDDEN;
             case INTERNAL_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
