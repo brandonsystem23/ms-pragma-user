@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -30,9 +31,11 @@ public class UserController {
 
     @PostMapping("/employees")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Crear empleado", description = "Crea un usuario con role empleado. Requiere rol PROPIETARIO")
-    public Mono<UserResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request) {
-        return userApplicationService.createEmployee(request);
+    @Operation(summary = "Crear empleado", description = "Crea un usuario con role empleado y lo asigna al restaurante. Requiere rol PROPIETARIO")
+    public Mono<UserResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request,
+                                             Authentication authentication) {
+        Long ownerId = (Long) authentication.getPrincipal();
+        return userApplicationService.createEmployee(request, ownerId);
     }
 
     @PostMapping("/clients/self-register")
@@ -46,6 +49,5 @@ public class UserController {
     @Operation(summary = "Buscar usuario", description = "Busca un usuario por su id. Requiere rol ADMINISTRADOR")
     public Mono<UserResponse> retrieveUser(@RequestParam(value = "id") Long userId) {
         return userApplicationService.findUser(userId);
-
     }
 }

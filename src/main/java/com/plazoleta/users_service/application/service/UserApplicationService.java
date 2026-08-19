@@ -20,17 +20,17 @@ public class UserApplicationService {
     private final UserDtoMapper userDtoMapper;
 
     public Mono<UserResponse> createOwner(CreateOwnerRequest request) {
-        return registerUserUseCase.register(userDtoMapper.toCommand(request))
+        return registerUserUseCase.register(userDtoMapper.toCommand(request), null)
                 .map(userDtoMapper::toResponse);
     }
 
-    public Mono<UserResponse> createEmployee(CreateEmployeeRequest request) {
-        return registerUserUseCase.register(userDtoMapper.toCommand(request))
+    public Mono<UserResponse> createEmployee(CreateEmployeeRequest request, Long ownerId) {
+        return registerUserUseCase.register(userDtoMapper.toCommand(request), ownerId)
                 .map(userDtoMapper::toResponse);
     }
 
     public Mono<UserResponse> selfRegisterClient(CreateClientRequest request) {
-        return registerUserUseCase.register(userDtoMapper.toCommand(request))
+        return registerUserUseCase.register(userDtoMapper.toCommand(request), null)
                 .map(userDtoMapper::toResponse);
     }
 

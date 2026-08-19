@@ -6,14 +6,16 @@ import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
 import com.plazoleta.users_service.domain.port.in.RetrieveUserCase;
 import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
+import com.plazoleta.users_service.domain.port.out.RestaurantEmployeePersistencePort;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
-import com.plazoleta.users_service.domain.service.DomainLoginValidator;
-import com.plazoleta.users_service.domain.service.DomainUserValidator;
+import com.plazoleta.users_service.domain.service.AssignEmployeeToRestaurantService;
 import com.plazoleta.users_service.domain.service.LoginService;
 import com.plazoleta.users_service.domain.service.LogoutService;
 import com.plazoleta.users_service.domain.service.RegisterUserService;
 import com.plazoleta.users_service.domain.service.RetrieveUserService;
-import com.plazoleta.users_service.domain.service.UserRegistrationValidator;
+import com.plazoleta.users_service.domain.service.validation.DomainLoginValidator;
+import com.plazoleta.users_service.domain.service.validation.DomainUserValidator;
+import com.plazoleta.users_service.domain.service.validation.UserRegistrationValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -67,13 +69,15 @@ public class BeanConfiguration {
             UserPersistencePort userPersistencePort,
             PasswordEncoderPort passwordEncoderPort,
             UserRegistrationValidator userRegistrationValidator,
-            DomainUserValidator domainUserValidator
+            DomainUserValidator domainUserValidator,
+            AssignEmployeeToRestaurantService assignEmployeeToRestaurantService
     ) {
         return new RegisterUserService(
                 userPersistencePort,
                 passwordEncoderPort,
                 userRegistrationValidator,
-                domainUserValidator
+                domainUserValidator,
+                assignEmployeeToRestaurantService
         );
     }
 
@@ -84,6 +88,13 @@ public class BeanConfiguration {
         return new RetrieveUserService(
                 userPersistencePort
         );
+    }
+
+    @Bean
+    public AssignEmployeeToRestaurantService assignEmployeeToRestaurantService(
+            RestaurantEmployeePersistencePort restaurantEmployeePersistencePort
+    ) {
+        return new AssignEmployeeToRestaurantService(restaurantEmployeePersistencePort);
     }
 
     @Bean

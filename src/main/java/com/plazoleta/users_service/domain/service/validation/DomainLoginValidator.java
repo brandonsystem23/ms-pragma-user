@@ -1,4 +1,4 @@
-package com.plazoleta.users_service.domain.service;
+package com.plazoleta.users_service.domain.service.validation;
 
 import com.plazoleta.users_service.domain.exception.DomainErrorCode;
 import com.plazoleta.users_service.domain.exception.DomainErrorMessages;

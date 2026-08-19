@@ -19,6 +19,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
+import java.time.Month;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -42,7 +44,7 @@ class UserApplicationServiceTest {
     void shouldCreateOwnerSuccessfully() {
         CreateOwnerRequest request = new CreateOwnerRequest(
                 "Juan", "Perez", "123456", "+573001112233",
-                LocalDate.of(1990, 1, 1),
+                LocalDate.of(1990, Month.JANUARY, 1),
                 "owner@test.com", "123456"
         );
 
@@ -52,7 +54,7 @@ class UserApplicationServiceTest {
                 .lastName("Perez")
                 .numberDocument("123456")
                 .phone("+573001112233")
-                .birthDate(LocalDate.of(1990, 1, 1))
+                .birthDate(LocalDate.of(1990, Month.JANUARY, 1))
                 .email("owner@test.com")
                 .status(true)
                 .role(Role.builder().name("PROPIETARIO").build())
@@ -64,18 +66,18 @@ class UserApplicationServiceTest {
                 .lastName("Perez")
                 .numberDocument("123456")
                 .phone("+573001112233")
-                .birthDate(LocalDate.of(1990, 1, 1))
+                .birthDate(LocalDate.of(1990, Month.JANUARY, 1))
                 .email("owner@test.com")
                 .status(true)
                 .role("PROPIETARIO")
                 .build();
 
-        when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
+        when(registerUserUseCase.register(any(), any())).thenReturn(Mono.just(user));
         when(userDtoMapper.toResponse(any())).thenReturn(responseUser);
 
         StepVerifier.create(userApplicationService.createOwner(request))
                 .assertNext(response ->
-                    Assertions.assertEquals("PROPIETARIO", response.role())
+                        Assertions.assertEquals("PROPIETARIO", response.role())
                 )
                 .verifyComplete();
     }
@@ -109,12 +111,12 @@ class UserApplicationServiceTest {
                 .role("EMPLEADO")
                 .build();
 
-        when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
+        when(registerUserUseCase.register(any(), any())).thenReturn(Mono.just(user));
         when(userDtoMapper.toResponse(any())).thenReturn(responseUser);
 
-        StepVerifier.create(userApplicationService.createEmployee(request))
+        StepVerifier.create(userApplicationService.createEmployee(request, 5L))
                 .assertNext(response ->
-                    Assertions.assertEquals("EMPLEADO", response.role())
+                        Assertions.assertEquals("EMPLEADO", response.role())
                 )
                 .verifyComplete();
     }
@@ -148,13 +150,12 @@ class UserApplicationServiceTest {
                 .role("CLIENTE")
                 .build();
 
-        when(registerUserUseCase.register(any())).thenReturn(Mono.just(user));
+        when(registerUserUseCase.register(any(), any())).thenReturn(Mono.just(user));
         when(userDtoMapper.toResponse(user)).thenReturn(responseUser);
-
 
         StepVerifier.create(userApplicationService.selfRegisterClient(request))
                 .assertNext(response ->
-                    Assertions.assertEquals("CLIENTE", response.role())
+                        Assertions.assertEquals("CLIENTE", response.role())
                 )
                 .verifyComplete();
     }
@@ -185,7 +186,6 @@ class UserApplicationServiceTest {
 
         when(retrieveUserCase.find(anyLong())).thenReturn(Mono.just(user));
         when(userDtoMapper.toResponse(user)).thenReturn(responseUser);
-
 
         StepVerifier.create(userApplicationService.findUser(1L))
                 .assertNext(response ->
