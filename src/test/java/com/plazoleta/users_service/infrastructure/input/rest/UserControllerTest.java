@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -36,7 +37,7 @@ class UserControllerTest {
                 "Perez",
                 "123456",
                 "+573001112233",
-                LocalDate.of(1990, 1, 1),
+                LocalDate.of(1990, Month.JANUARY, 1),
                 "owner@test.com",
                 "123456"
         );
@@ -47,7 +48,7 @@ class UserControllerTest {
                 .lastName("Perez")
                 .numberDocument("123456")
                 .phone("+573001112233")
-                .birthDate(LocalDate.of(1990, 1, 1))
+                .birthDate(LocalDate.of(1990, Month.JANUARY, 1))
                 .email("owner@test.com")
                 .status(true)
                 .role("PROPIETARIO")
