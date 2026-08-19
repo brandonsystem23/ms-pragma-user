@@ -8,6 +8,6 @@ class UsersServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// Verifica que el contexto de Spring Boot se cargue correctamente.
 	}
-
 }

@@ -1,6 +1,7 @@
 package com.plazoleta.users_service.infrastructure.output.postgres.repository;
 
 import com.plazoleta.users_service.infrastructure.output.postgres.entity.UserEntity;
+import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 
@@ -11,4 +12,17 @@ public interface UserRepository extends ReactiveCrudRepository<UserEntity, Long>
     Mono<Boolean> existsByEmail(String email);
 
     Mono<Boolean> existsByNumberDocument(String numberDocument);
+
+    Mono<UserEntity> findByIdAndStatusTrue(Long id);
+
+    @Query("""
+            SELECT r.id
+            FROM users u
+            INNER JOIN restaurant r ON r.owner_id = u.id
+            WHERE u.id = :ownerId
+              AND u.status = true
+              AND r.status = true
+            LIMIT 1
+            """)
+    Mono<Long> findRestaurantIdByOwnerId(Long ownerId);
 }

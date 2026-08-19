@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -21,20 +23,31 @@ public class UserController {
     private final UserApplicationService userApplicationService;
 
     @PostMapping("/owners")
-    @Operation(summary = "Crear propietario", description = "Crea un usuario con role propietario. Requiere role ADMIN")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Crear propietario", description = "Crea un usuario con role propietario. Requiere rol ADMINISTRADOR")
     public Mono<UserResponse> createOwner(@Valid @RequestBody CreateOwnerRequest request) {
         return userApplicationService.createOwner(request);
     }
 
     @PostMapping("/employees")
-    @Operation(summary = "Crear empleado", description = "Crea un usuario con role empleado. Requiere role PROPIETARIO")
-    public Mono<UserResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request) {
-        return userApplicationService.createEmployee(request);
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Crear empleado", description = "Crea un usuario con role empleado y lo asigna al restaurante. Requiere rol PROPIETARIO")
+    public Mono<UserResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request,
+                                             Authentication authentication) {
+        Long ownerId = (Long) authentication.getPrincipal();
+        return userApplicationService.createEmployee(request, ownerId);
     }
 
     @PostMapping("/clients/self-register")
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Auto registro de cliente", description = "Permite que un cliente se registre sin autenticación")
     public Mono<UserResponse> selfRegisterClient(@Valid @RequestBody CreateClientRequest request) {
         return userApplicationService.selfRegisterClient(request);
+    }
+
+    @GetMapping("/find")
+    @Operation(summary = "Buscar usuario", description = "Busca un usuario por su id. Requiere rol ADMINISTRADOR")
+    public Mono<UserResponse> retrieveUser(@RequestParam(value = "id") Long userId) {
+        return userApplicationService.findUser(userId);
     }
 }

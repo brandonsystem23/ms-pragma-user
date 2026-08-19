@@ -59,6 +59,7 @@ public class SecurityConfiguration {
                         .pathMatchers(HttpMethod.POST, "/api/v1/users/clients/self-register").permitAll()
                         .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/users/owners").hasRole(RoleNames.ADMIN)
+                        .pathMatchers(HttpMethod.GET, "/api/v1/users/find").hasRole(RoleNames.ADMIN)
                         .pathMatchers(HttpMethod.POST, "/api/v1/users/employees").hasRole(RoleNames.OWNER)
                         .anyExchange().authenticated()
                 )

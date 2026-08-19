@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface RegisterUserUseCase {
 
-    Mono<User> register(RegisterUserCommand command);
+    Mono<User> register(RegisterUserCommand command, Long ownerId);
 }
