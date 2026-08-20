@@ -3,7 +3,7 @@ package com.plazoleta.users_service.infrastructure.configuration;
 import com.plazoleta.users_service.domain.port.in.LoginUseCase;
 import com.plazoleta.users_service.domain.port.in.LogoutUseCase;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
-import com.plazoleta.users_service.domain.port.in.RetrieveUserCase;
+import com.plazoleta.users_service.domain.port.in.RetrieveUserUseCase;
 import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
 import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
 import com.plazoleta.users_service.domain.port.out.RestaurantEmployeePersistencePort;
@@ -82,7 +82,7 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public RetrieveUserCase retrieveUserUseCase(
+    public RetrieveUserUseCase retrieveUserUseCase(
             UserPersistencePort userPersistencePort
     ) {
         return new RetrieveUserService(
@@ -103,7 +103,7 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public Duration authTokenExpiration(@Value("${auth.token.expiration}") Long expirationMillis) {
-        return Duration.ofMinutes(expirationMillis);
+    public Duration authTokenExpiration(@Value("${auth.token.expiration}") Long expirationMinutes) {
+        return Duration.ofMinutes(expirationMinutes);
     }
 }
