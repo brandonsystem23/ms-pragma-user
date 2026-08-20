@@ -8,7 +8,7 @@ import com.plazoleta.users_service.application.mapper.UserDtoMapper;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
 import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
-import com.plazoleta.users_service.domain.port.in.RetrieveUserCase;
+import com.plazoleta.users_service.domain.port.in.RetrieveUserUseCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,7 @@ class UserApplicationServiceTest {
     private RegisterUserUseCase registerUserUseCase;
 
     @Mock
-    private RetrieveUserCase retrieveUserCase;
+    private RetrieveUserUseCase retrieveUserUseCase;
 
     @Mock
     private UserDtoMapper userDtoMapper;
@@ -184,7 +184,7 @@ class UserApplicationServiceTest {
                 .role("PROPIETARIO")
                 .build();
 
-        when(retrieveUserCase.find(anyLong())).thenReturn(Mono.just(user));
+        when(retrieveUserUseCase.find(anyLong())).thenReturn(Mono.just(user));
         when(userDtoMapper.toResponse(user)).thenReturn(responseUser);
 
         StepVerifier.create(userApplicationService.findUser(1L))
