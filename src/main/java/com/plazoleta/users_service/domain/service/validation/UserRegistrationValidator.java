@@ -20,27 +20,27 @@ public class UserRegistrationValidator {
                 .switchIfEmpty(Mono.error(new DomainException(
                         DomainErrorCode.ROLE_NOT_FOUND,
                         "El rol " + roleName + " no existe"
-                )));
+                )))
+                .map(foundRole -> foundRole);
     }
 
     private Mono<Void> validateDocument(String numberDocument) {
         return userPersistencePort.existsByNumberDocument(numberDocument)
-                .flatMap(exists -> Boolean.TRUE.equals(exists)
+                .flatMap(documentAlreadyExists -> Boolean.TRUE.equals(documentAlreadyExists)
                         ? Mono.error(new DomainException(
                         DomainErrorCode.DUPLICATE_DOCUMENT,
                         DomainErrorMessages.DUPLICATE_DOCUMENT
-                        )
-                ) : Mono.empty());
+                ))
+                        : Mono.empty());
     }
 
     private Mono<Void> validateEmail(String email) {
         return userPersistencePort.existsByEmail(email)
-                .flatMap(exists -> Boolean.TRUE.equals(exists)
+                .flatMap(emailAlreadyExists -> Boolean.TRUE.equals(emailAlreadyExists)
                         ? Mono.error(new DomainException(
                         DomainErrorCode.DUPLICATE_EMAIL,
                         DomainErrorMessages.DUPLICATE_EMAIL
-                        )
-                ) : Mono.empty());
+                ))
+                        : Mono.empty());
     }
 }
-

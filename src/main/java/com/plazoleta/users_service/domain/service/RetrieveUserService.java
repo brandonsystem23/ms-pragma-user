@@ -4,13 +4,13 @@ import com.plazoleta.users_service.domain.exception.DomainErrorCode;
 import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
 import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.User;
-import com.plazoleta.users_service.domain.port.in.RetrieveUserCase;
+import com.plazoleta.users_service.domain.port.in.RetrieveUserUseCase;
 import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
-public class RetrieveUserService implements RetrieveUserCase {
+public class RetrieveUserService implements RetrieveUserUseCase {
 
     private final UserPersistencePort userPersistencePort;
 

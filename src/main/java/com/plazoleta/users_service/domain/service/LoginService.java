@@ -24,19 +24,19 @@ public class LoginService implements LoginUseCase {
     private final DomainLoginValidator domainLoginValidator;
 
     @Override
-    public Mono<AuthResult> login(LoginCommand command) {
+    public Mono<AuthResult> login(LoginCommand loginCommand) {
         return Mono.defer(() -> {
 
-            String normalizedEmail = EmailNormalizer.normalize(command.email());
+            String normalizedEmail = EmailNormalizer.normalize(loginCommand.email());
 
-            domainLoginValidator.validate(command);
+            domainLoginValidator.validate(loginCommand);
 
             return userPersistencePort.findByEmail(normalizedEmail)
                     .switchIfEmpty(Mono.error(new DomainException(
                             DomainErrorCode.USER_NOT_FOUND,
                             DomainErrorMessages.USER_NOT_FOUND
                     )))
-                    .filter(user -> passwordEncoderPort.matches(command.password(), user.getPassword()))
+                    .filter(user -> passwordEncoderPort.matches(loginCommand.password(), user.getPassword()))
                     .switchIfEmpty(Mono.error(new DomainException(
                             DomainErrorCode.INVALID_CREDENTIALS,
                             DomainErrorMessages.INVALID_CREDENTIALS
