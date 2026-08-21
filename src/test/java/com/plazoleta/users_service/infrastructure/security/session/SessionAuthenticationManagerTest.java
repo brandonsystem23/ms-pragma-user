@@ -1,7 +1,7 @@
 package com.plazoleta.users_service.infrastructure.security.session;
 
 import com.plazoleta.users_service.domain.model.auth.AuthSession;
-import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
+import com.plazoleta.users_service.domain.spi.IAuthCachePort;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 class SessionAuthenticationManagerTest {
 
     @Mock
-    private AuthSessionPort authSessionPort;
+    private IAuthCachePort authSessionPort;
 
     @InjectMocks
     private SessionAuthenticationManager authenticationManager;
