@@ -10,7 +10,7 @@ import com.plazoleta.users_service.domain.api.IAuthServicePort;
 import com.plazoleta.users_service.domain.spi.IAuthCachePort;
 import com.plazoleta.users_service.domain.spi.IPasswordEncoderPort;
 import com.plazoleta.users_service.domain.spi.IUserPersistencePort;
-import com.plazoleta.users_service.domain.service.validation.DomainLoginValidator;
+import com.plazoleta.users_service.domain.validation.DomainLoginValidator;
 import com.plazoleta.users_service.domain.service.EmailNormalizer;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;

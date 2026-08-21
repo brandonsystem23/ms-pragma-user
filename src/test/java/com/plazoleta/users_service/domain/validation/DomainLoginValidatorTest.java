@@ -1,7 +1,8 @@
-package com.plazoleta.users_service.domain.service.validation;
+package com.plazoleta.users_service.domain.validation;
 
 import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.auth.LoginCommand;
+import com.plazoleta.users_service.domain.validation.DomainLoginValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

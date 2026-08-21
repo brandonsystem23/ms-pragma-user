@@ -1,4 +1,4 @@
-package com.plazoleta.users_service.domain.service.validation;
+package com.plazoleta.users_service.domain.validation;
 
 import java.util.regex.Pattern;
 

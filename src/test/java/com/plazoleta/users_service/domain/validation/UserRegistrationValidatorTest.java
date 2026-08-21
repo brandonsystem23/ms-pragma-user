@@ -1,10 +1,11 @@
-package com.plazoleta.users_service.domain.service.validation;
+package com.plazoleta.users_service.domain.validation;
 
 import com.plazoleta.users_service.domain.exception.DomainErrorCode;
 import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
 import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.spi.IUserPersistencePort;
+import com.plazoleta.users_service.domain.validation.UserRegistrationValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

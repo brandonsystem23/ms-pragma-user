@@ -9,7 +9,7 @@ import com.plazoleta.users_service.domain.model.auth.LoginCommand;
 import com.plazoleta.users_service.domain.spi.IAuthCachePort;
 import com.plazoleta.users_service.domain.spi.IPasswordEncoderPort;
 import com.plazoleta.users_service.domain.spi.IUserPersistencePort;
-import com.plazoleta.users_service.domain.service.validation.DomainLoginValidator;
+import com.plazoleta.users_service.domain.validation.DomainLoginValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
