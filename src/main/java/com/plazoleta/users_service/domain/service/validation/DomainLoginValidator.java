@@ -4,8 +4,6 @@ import com.plazoleta.users_service.domain.exception.DomainErrorCode;
 import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
 import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.auth.LoginCommand;
-import com.plazoleta.users_service.domain.validation.EmailValidator;
-import com.plazoleta.users_service.domain.validation.ValidationUtils;
 
 public class DomainLoginValidator {
 

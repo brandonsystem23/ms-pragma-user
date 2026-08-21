@@ -4,7 +4,7 @@ import com.plazoleta.users_service.application.dto.request.CreateClientRequest;
 import com.plazoleta.users_service.application.dto.request.CreateEmployeeRequest;
 import com.plazoleta.users_service.application.dto.request.CreateOwnerRequest;
 import com.plazoleta.users_service.application.dto.response.UserResponse;
-import com.plazoleta.users_service.application.service.UserApplicationService;
+import com.plazoleta.users_service.application.handler.IUserHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -20,13 +20,13 @@ import reactor.core.publisher.Mono;
 @Tag(name = "Usuarios", description = "Endpoints para gestión de usuarios")
 public class UserController {
 
-    private final UserApplicationService userApplicationService;
+    private final IUserHandler iUserHandler;
 
     @PostMapping("/owners")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Crear propietario", description = "Crea un usuario con role propietario. Requiere rol ADMINISTRADOR")
     public Mono<UserResponse> createOwner(@Valid @RequestBody CreateOwnerRequest request) {
-        return userApplicationService.createOwner(request);
+        return iUserHandler.createOwner(request);
     }
 
     @PostMapping("/employees")
@@ -35,19 +35,19 @@ public class UserController {
     public Mono<UserResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request,
                                              Authentication authentication) {
         Long ownerId = (Long) authentication.getPrincipal();
-        return userApplicationService.createEmployee(request, ownerId);
+        return iUserHandler.createEmployee(request, ownerId);
     }
 
     @PostMapping("/clients/self-register")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Auto registro de cliente", description = "Permite que un cliente se registre sin autenticación")
     public Mono<UserResponse> selfRegisterClient(@Valid @RequestBody CreateClientRequest request) {
-        return userApplicationService.selfRegisterClient(request);
+        return iUserHandler.selfRegisterClient(request);
     }
 
     @GetMapping("/find")
     @Operation(summary = "Buscar usuario", description = "Busca un usuario por su id. Requiere rol ADMINISTRADOR")
     public Mono<UserResponse> retrieveUser(@RequestParam(value = "id") Long userId) {
-        return userApplicationService.findUser(userId);
+        return iUserHandler.findUser(userId);
     }
 }

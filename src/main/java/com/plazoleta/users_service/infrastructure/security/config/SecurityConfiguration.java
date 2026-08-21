@@ -1,7 +1,7 @@
 package com.plazoleta.users_service.infrastructure.security.config;
 
 import com.plazoleta.users_service.domain.model.RoleNames;
-import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
+import com.plazoleta.users_service.domain.spi.IAuthCachePort;
 import com.plazoleta.users_service.infrastructure.security.handler.JsonAccessDeniedHandler;
 import com.plazoleta.users_service.infrastructure.security.handler.JsonAuthenticationEntryPoint;
 import com.plazoleta.users_service.infrastructure.security.session.BearerTokenAuthenticationConverter;
@@ -21,7 +21,7 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final AuthSessionPort authSessionPort;
+    private final IAuthCachePort iAuthCachePort;
     private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
     private final JsonAccessDeniedHandler jsonAccessDeniedHandler;
 
@@ -31,7 +31,7 @@ public class SecurityConfiguration {
 
         AuthenticationWebFilter authenticationWebFilter =
                 new AuthenticationWebFilter(
-                        new SessionAuthenticationManager(authSessionPort)
+                        new SessionAuthenticationManager(iAuthCachePort)
                 );
 
         authenticationWebFilter.setServerAuthenticationConverter(

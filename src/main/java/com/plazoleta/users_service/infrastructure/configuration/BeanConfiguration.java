@@ -1,18 +1,16 @@
 package com.plazoleta.users_service.infrastructure.configuration;
 
-import com.plazoleta.users_service.domain.port.in.LoginUseCase;
-import com.plazoleta.users_service.domain.port.in.LogoutUseCase;
-import com.plazoleta.users_service.domain.port.in.RegisterUserUseCase;
-import com.plazoleta.users_service.domain.port.in.RetrieveUserUseCase;
-import com.plazoleta.users_service.domain.port.out.AuthSessionPort;
-import com.plazoleta.users_service.domain.port.out.PasswordEncoderPort;
-import com.plazoleta.users_service.domain.port.out.RestaurantEmployeePersistencePort;
-import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
-import com.plazoleta.users_service.domain.service.AssignEmployeeToRestaurantService;
-import com.plazoleta.users_service.domain.service.LoginService;
-import com.plazoleta.users_service.domain.service.LogoutService;
-import com.plazoleta.users_service.domain.service.RegisterUserService;
-import com.plazoleta.users_service.domain.service.RetrieveUserService;
+import com.plazoleta.users_service.domain.api.IAuthServicePort;
+import com.plazoleta.users_service.domain.api.IUserRegisterServicePort;
+import com.plazoleta.users_service.domain.api.IUserRetrieveServicePort;
+import com.plazoleta.users_service.domain.spi.IAuthCachePort;
+import com.plazoleta.users_service.domain.spi.IPasswordEncoderPort;
+import com.plazoleta.users_service.domain.spi.IRestaurantEmployeePersistencePort;
+import com.plazoleta.users_service.domain.spi.IUserPersistencePort;
+import com.plazoleta.users_service.domain.service.AssignEmployeeService;
+import com.plazoleta.users_service.domain.usecase.AuthUseCase;
+import com.plazoleta.users_service.domain.usecase.RegisterUserUseCase;
+import com.plazoleta.users_service.domain.usecase.RetrieveUserUseCase;
 import com.plazoleta.users_service.domain.service.validation.DomainLoginValidator;
 import com.plazoleta.users_service.domain.service.validation.DomainUserValidator;
 import com.plazoleta.users_service.domain.service.validation.UserRegistrationValidator;
@@ -38,63 +36,58 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public LoginUseCase loginUseCase(
-            UserPersistencePort userPersistencePort,
-            PasswordEncoderPort passwordEncoderPort,
-            AuthSessionPort authSessionPort,
+    public IAuthServicePort loginUseCase(
+            IUserPersistencePort iUserPersistencePort,
+            IPasswordEncoderPort iPasswordEncoderPort,
+            IAuthCachePort iAuthCachePort,
             DomainLoginValidator domainLoginValidator
     ) {
-        return new LoginService(
-                userPersistencePort,
-                passwordEncoderPort,
-                authSessionPort,
+        return new AuthUseCase(
+                iUserPersistencePort,
+                iPasswordEncoderPort,
+                iAuthCachePort,
                 domainLoginValidator
         );
     }
 
     @Bean
-    public LogoutUseCase logoutUseCase(AuthSessionPort authSessionPort) {
-        return new LogoutService(authSessionPort);
-    }
-
-    @Bean
     public UserRegistrationValidator userRegistrationValidator(
-            UserPersistencePort userPersistencePort
+            IUserPersistencePort iUserPersistencePort
     ) {
-        return new UserRegistrationValidator(userPersistencePort);
+        return new UserRegistrationValidator(iUserPersistencePort);
     }
 
     @Bean
-    public RegisterUserUseCase registerUserUseCase(
-            UserPersistencePort userPersistencePort,
-            PasswordEncoderPort passwordEncoderPort,
+    public IUserRegisterServicePort registerUserUseCase(
+            IUserPersistencePort iUserPersistencePort,
+            IPasswordEncoderPort iPasswordEncoderPort,
             UserRegistrationValidator userRegistrationValidator,
             DomainUserValidator domainUserValidator,
-            AssignEmployeeToRestaurantService assignEmployeeToRestaurantService
+            AssignEmployeeService assignEmployeeService
     ) {
-        return new RegisterUserService(
-                userPersistencePort,
-                passwordEncoderPort,
+        return new RegisterUserUseCase(
+                iUserPersistencePort,
+                iPasswordEncoderPort,
                 userRegistrationValidator,
                 domainUserValidator,
-                assignEmployeeToRestaurantService
+                assignEmployeeService
         );
     }
 
     @Bean
-    public RetrieveUserUseCase retrieveUserUseCase(
-            UserPersistencePort userPersistencePort
+    public IUserRetrieveServicePort retrieveUserUseCase(
+            IUserPersistencePort iUserPersistencePort
     ) {
-        return new RetrieveUserService(
-                userPersistencePort
+        return new RetrieveUserUseCase(
+                iUserPersistencePort
         );
     }
 
     @Bean
-    public AssignEmployeeToRestaurantService assignEmployeeToRestaurantService(
-            RestaurantEmployeePersistencePort restaurantEmployeePersistencePort
+    public AssignEmployeeService assignEmployeeToRestaurantService(
+            IRestaurantEmployeePersistencePort iRestaurantEmployeePersistencePort
     ) {
-        return new AssignEmployeeToRestaurantService(restaurantEmployeePersistencePort);
+        return new AssignEmployeeService(iRestaurantEmployeePersistencePort);
     }
 
     @Bean

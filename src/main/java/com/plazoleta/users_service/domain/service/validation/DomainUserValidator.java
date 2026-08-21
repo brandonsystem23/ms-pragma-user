@@ -5,11 +5,6 @@ import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
 import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.RoleNames;
 import com.plazoleta.users_service.domain.model.auth.RegisterUserCommand;
-import com.plazoleta.users_service.domain.validation.AdultValidation;
-import com.plazoleta.users_service.domain.validation.DocumentValidator;
-import com.plazoleta.users_service.domain.validation.EmailValidator;
-import com.plazoleta.users_service.domain.validation.PhoneValidator;
-import com.plazoleta.users_service.domain.validation.ValidationUtils;
 
 public class DomainUserValidator {
 

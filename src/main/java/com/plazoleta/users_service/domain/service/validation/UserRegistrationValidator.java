@@ -4,14 +4,14 @@ import com.plazoleta.users_service.domain.exception.DomainErrorCode;
 import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
 import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.Role;
-import com.plazoleta.users_service.domain.port.out.UserPersistencePort;
+import com.plazoleta.users_service.domain.spi.IUserPersistencePort;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 public class UserRegistrationValidator {
 
-    private final UserPersistencePort userPersistencePort;
+    private final IUserPersistencePort userPersistencePort;
 
     public Mono<Role> validate(String numberDocument, String email, String roleName) {
         return validateDocument(numberDocument)
