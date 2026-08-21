@@ -1,6 +1,6 @@
 package com.plazoleta.users_service.domain.validation;
 
-import com.plazoleta.users_service.domain.util.EmailNormalizer;
+import com.plazoleta.users_service.domain.service.EmailNormalizer;
 
 import java.util.regex.Pattern;
 

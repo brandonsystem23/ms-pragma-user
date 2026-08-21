@@ -2,7 +2,7 @@ package com.plazoleta.users_service.infrastructure.security.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.plazoleta.users_service.infrastructure.input.rest.ErrorResponse;
+import com.plazoleta.users_service.infrastructure.exceptionhandler.ErrorResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

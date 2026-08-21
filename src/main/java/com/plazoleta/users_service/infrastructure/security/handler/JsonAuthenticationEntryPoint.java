@@ -1,7 +1,7 @@
 package com.plazoleta.users_service.infrastructure.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.plazoleta.users_service.infrastructure.input.rest.ErrorResponse;
+import com.plazoleta.users_service.infrastructure.exceptionhandler.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;

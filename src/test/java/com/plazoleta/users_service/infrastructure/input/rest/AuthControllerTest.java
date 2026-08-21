@@ -2,8 +2,7 @@ package com.plazoleta.users_service.infrastructure.input.rest;
 
 import com.plazoleta.users_service.application.dto.request.LoginRequest;
 import com.plazoleta.users_service.application.dto.response.LoginResponse;
-import com.plazoleta.users_service.application.service.AuthApplicationService;
-import com.plazoleta.users_service.application.service.LogoutApplicationService;
+import com.plazoleta.users_service.application.handler.IAuthHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,10 +20,7 @@ import static org.mockito.Mockito.when;
 class AuthControllerTest {
 
     @Mock
-    private AuthApplicationService authApplicationService;
-
-    @Mock
-    private LogoutApplicationService logoutApplicationService;
+    private IAuthHandler iAuthHandler;
 
     @InjectMocks
     private AuthController authController;
@@ -41,7 +37,7 @@ class AuthControllerTest {
                 .role("ADMINISTRADOR")
                 .build();
 
-        when(authApplicationService.login(any())).thenReturn(Mono.just(response));
+        when(iAuthHandler.login(any())).thenReturn(Mono.just(response));
 
         StepVerifier.create(authController.login(request))
                 .assertNext(login -> {
@@ -53,7 +49,7 @@ class AuthControllerTest {
 
     @Test
     void shouldLogoutSuccessfully() {
-        when(logoutApplicationService.logout(anyString())).thenReturn(Mono.empty());
+        when(iAuthHandler.logout(anyString())).thenReturn(Mono.empty());
 
         StepVerifier.create(authController.logout("Bearer token-123"))
                 .verifyComplete();
