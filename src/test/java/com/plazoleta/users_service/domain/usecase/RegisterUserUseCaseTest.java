@@ -3,11 +3,11 @@ package com.plazoleta.users_service.domain.usecase;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
 import com.plazoleta.users_service.domain.model.auth.RegisterUserCommand;
-import com.plazoleta.users_service.domain.service.AssignEmployeeService;
+import com.plazoleta.users_service.domain.validation.user.AssignerRestaurantValidator;
 import com.plazoleta.users_service.domain.spi.IPasswordEncoderPort;
 import com.plazoleta.users_service.domain.spi.IUserPersistencePort;
-import com.plazoleta.users_service.domain.validation.DomainUserValidator;
-import com.plazoleta.users_service.domain.validation.UserRegistrationValidator;
+import com.plazoleta.users_service.domain.validation.user.DomainUserValidator;
+import com.plazoleta.users_service.domain.validation.user.UserRegistrationValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ class RegisterUserUseCaseTest {
     private UserRegistrationValidator userRegistrationValidator;
 
     @Mock
-    private AssignEmployeeService assignEmployeeService;
+    private AssignerRestaurantValidator assignEmployeeService;
 
     private RegisterUserUseCase registerUserUseCase;
 

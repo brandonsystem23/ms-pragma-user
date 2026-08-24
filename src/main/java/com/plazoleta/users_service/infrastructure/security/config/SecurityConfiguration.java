@@ -62,6 +62,7 @@ public class SecurityConfiguration {
                         .pathMatchers(HttpMethod.GET, "/api/v1/users/find").hasAnyRole(RoleNames.ADMIN,
                                 RoleNames.EMPLOYEE, RoleNames.CLIENT)
                         .pathMatchers(HttpMethod.POST, "/api/v1/users/employees").hasRole(RoleNames.OWNER)
+                        .pathMatchers(HttpMethod.POST, "/api/v1/users/clients/self-register").hasRole(RoleNames.CLIENT)
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(authenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)

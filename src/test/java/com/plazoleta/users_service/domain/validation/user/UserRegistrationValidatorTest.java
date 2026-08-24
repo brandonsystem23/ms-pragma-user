@@ -1,11 +1,10 @@
-package com.plazoleta.users_service.domain.validation;
+package com.plazoleta.users_service.domain.validation.user;
 
 import com.plazoleta.users_service.domain.exception.DomainErrorCode;
 import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
 import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.spi.IUserPersistencePort;
-import com.plazoleta.users_service.domain.validation.UserRegistrationValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,50 +50,57 @@ class UserRegistrationValidatorTest {
 
     @Test
     void shouldFailWhenDocumentAlreadyExists() {
-        Role role = Role.builder()
-                .id(1L)
-                .name("CLIENTE")
-                .description("Rol cliente")
-                .build();
 
         when(userPersistencePort.existsByNumberDocument(anyString()))
                 .thenReturn(Mono.just(true));
-        when(userPersistencePort.existsByEmail(anyString()))
-                .thenReturn(Mono.just(false));
-        when(userPersistencePort.findRoleByName(anyString()))
-                .thenReturn(Mono.just(role));
 
-        StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
+        StepVerifier.create(
+                        validator.validate(
+                                "123456",
+                                "test@test.com",
+                                "CLIENTE"))
                 .expectErrorSatisfies(error -> {
                     Assertions.assertInstanceOf(DomainException.class, error);
+
                     DomainException exception = (DomainException) error;
-                    Assertions.assertEquals(DomainErrorCode.DUPLICATE_DOCUMENT, exception.getCode());
-                    Assertions.assertEquals(DomainErrorMessages.DUPLICATE_DOCUMENT, exception.getMessage());
+
+                    Assertions.assertEquals(
+                            DomainErrorCode.DUPLICATE_DOCUMENT,
+                            exception.getCode());
+
+                    Assertions.assertEquals(
+                            DomainErrorMessages.DUPLICATE_DOCUMENT,
+                            exception.getMessage());
                 })
                 .verify();
     }
 
     @Test
     void shouldFailWhenEmailAlreadyExists() {
-        Role role = Role.builder()
-                .id(1L)
-                .name("CLIENTE")
-                .description("Rol cliente")
-                .build();
 
         when(userPersistencePort.existsByNumberDocument(anyString()))
                 .thenReturn(Mono.just(false));
+
         when(userPersistencePort.existsByEmail(anyString()))
                 .thenReturn(Mono.just(true));
-        when(userPersistencePort.findRoleByName(anyString()))
-                .thenReturn(Mono.just(role));
 
-        StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
+        StepVerifier.create(
+                        validator.validate(
+                                "123456",
+                                "test@test.com",
+                                "CLIENTE"))
                 .expectErrorSatisfies(error -> {
                     Assertions.assertInstanceOf(DomainException.class, error);
+
                     DomainException exception = (DomainException) error;
-                    Assertions.assertEquals(DomainErrorCode.DUPLICATE_EMAIL, exception.getCode());
-                    Assertions.assertEquals(DomainErrorMessages.DUPLICATE_EMAIL, exception.getMessage());
+
+                    Assertions.assertEquals(
+                            DomainErrorCode.DUPLICATE_EMAIL,
+                            exception.getCode());
+
+                    Assertions.assertEquals(
+                            DomainErrorMessages.DUPLICATE_EMAIL,
+                            exception.getMessage());
                 })
                 .verify();
     }
