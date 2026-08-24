@@ -7,6 +7,7 @@ import com.plazoleta.users_service.domain.spi.IAuthCachePort;
 import com.plazoleta.users_service.infrastructure.out.redis.dto.AuthSessionRedisValue;
 import com.plazoleta.users_service.infrastructure.out.redis.mapper.RedisRequestMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -15,6 +16,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class SessionRedisAdapter implements IAuthCachePort {
 
@@ -33,9 +35,18 @@ public class SessionRedisAdapter implements IAuthCachePort {
         AuthSessionRedisValue redisValue = redisRequestMapper.toInsert(authSession);
         return serialize(redisValue)
                 .flatMap(json -> redisTemplate.opsForValue().set(key, json, expiration))
-                .flatMap(saved -> Boolean.TRUE.equals(saved)
-                        ? Mono.just(token)
-                        : Mono.error(new IllegalStateException("No se pudo almacenar la sesión en Redis")));
+                .flatMap(saved -> {
+                    if (Boolean.TRUE.equals(saved)) {
+
+                        log.info("Se guardo la sesión en REDIS");
+
+                        return Mono.just(token);
+                    }
+
+                    log.error("Error al guardar la sesion en REDIS para el usuario {}", authSession.fullName());
+
+                    return Mono.error(new IllegalStateException("No se pudo almacenar la sesión en Redis"));
+                });
     }
 
     @Override

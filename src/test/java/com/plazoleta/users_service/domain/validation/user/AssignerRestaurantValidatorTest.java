@@ -1,4 +1,4 @@
-package com.plazoleta.users_service.domain.service;
+package com.plazoleta.users_service.domain.validation.user;
 
 import com.plazoleta.users_service.domain.exception.DomainErrorCode;
 import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
@@ -13,17 +13,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AssignEmployeeServiceTest {
+class AssignerRestaurantValidatorTest {
 
     @Mock
     private IRestaurantEmployeePersistencePort iRestaurantEmployeePersistencePort;
 
     @InjectMocks
-    private AssignEmployeeService assignEmployeeService;
+    private AssignerRestaurantValidator assignEmployeeService;
 
 
     @Test
@@ -67,7 +68,7 @@ class AssignEmployeeServiceTest {
     @Test
     void shouldAssignEmployeeToRestaurantSuccessfully() {
 
-        when(iRestaurantEmployeePersistencePort.assignEmployeeToRestaurant(anyLong(), anyLong()))
+        when(iRestaurantEmployeePersistencePort.assignEmployeeToRestaurant(any()))
                 .thenReturn(Mono.empty());
 
         StepVerifier.create(assignEmployeeService.assignToRestaurant(20L, 10L))

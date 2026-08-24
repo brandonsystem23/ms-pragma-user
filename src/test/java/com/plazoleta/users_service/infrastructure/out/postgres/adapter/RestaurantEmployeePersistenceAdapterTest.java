@@ -1,6 +1,8 @@
 package com.plazoleta.users_service.infrastructure.out.postgres.adapter;
 
+import com.plazoleta.users_service.domain.model.RestaurantEmployee;
 import com.plazoleta.users_service.infrastructure.out.postgres.entity.RestaurantEmployeeEntity;
+import com.plazoleta.users_service.infrastructure.out.postgres.mapper.UserEntityMapper;
 import com.plazoleta.users_service.infrastructure.out.postgres.repository.IRestaurantEmployeeRepository;
 import com.plazoleta.users_service.infrastructure.out.postgres.repository.IUserRepository;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,6 +26,9 @@ class RestaurantEmployeePersistenceAdapterTest {
 
     @Mock
     private IRestaurantEmployeeRepository iRestaurantEmployeeRepository;
+
+    @Mock
+    private UserEntityMapper userEntityMapper;
 
     @InjectMocks
     private RestaurantEmployeePersistenceAdapter adapter;
@@ -45,10 +51,17 @@ class RestaurantEmployeePersistenceAdapterTest {
                 .employeeId(10L)
                 .build();
 
-        when(iRestaurantEmployeeRepository.save(ArgumentMatchers.any(RestaurantEmployeeEntity.class)))
+        RestaurantEmployee restaurantEmployee = RestaurantEmployee.builder()
+                .restaurantId(15L)
+                .employeeId(10L)
+                .build();
+
+        when(iRestaurantEmployeeRepository.save(any(RestaurantEmployeeEntity.class)))
                 .thenReturn(Mono.just(entity));
 
-        StepVerifier.create(adapter.assignEmployeeToRestaurant(15L, 10L))
+        when(userEntityMapper.toEntityRestaurant(any())).thenReturn(entity);
+
+        StepVerifier.create(adapter.assignEmployeeToRestaurant(restaurantEmployee))
                 .verifyComplete();
     }
 }

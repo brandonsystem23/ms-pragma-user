@@ -1,9 +1,8 @@
-package com.plazoleta.users_service.domain.validation;
+package com.plazoleta.users_service.domain.validation.user;
 
 import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.RoleNames;
 import com.plazoleta.users_service.domain.model.auth.RegisterUserCommand;
-import com.plazoleta.users_service.domain.validation.DomainUserValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -7,13 +7,14 @@ import com.plazoleta.users_service.domain.spi.IAuthCachePort;
 import com.plazoleta.users_service.domain.spi.IPasswordEncoderPort;
 import com.plazoleta.users_service.domain.spi.IRestaurantEmployeePersistencePort;
 import com.plazoleta.users_service.domain.spi.IUserPersistencePort;
-import com.plazoleta.users_service.domain.service.AssignEmployeeService;
+import com.plazoleta.users_service.domain.validation.user.AssignerRestaurantValidator;
 import com.plazoleta.users_service.domain.usecase.AuthUseCase;
 import com.plazoleta.users_service.domain.usecase.RegisterUserUseCase;
 import com.plazoleta.users_service.domain.usecase.RetrieveUserUseCase;
-import com.plazoleta.users_service.domain.validation.DomainLoginValidator;
-import com.plazoleta.users_service.domain.validation.DomainUserValidator;
-import com.plazoleta.users_service.domain.validation.UserRegistrationValidator;
+import com.plazoleta.users_service.domain.validation.user.DomainLoginValidator;
+import com.plazoleta.users_service.domain.validation.user.DomainUserValidator;
+import com.plazoleta.users_service.domain.validation.user.LoginValidator;
+import com.plazoleta.users_service.domain.validation.user.UserRegistrationValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,16 +38,14 @@ public class BeanConfiguration {
 
     @Bean
     public IAuthServicePort loginUseCase(
-            IUserPersistencePort iUserPersistencePort,
-            IPasswordEncoderPort iPasswordEncoderPort,
             IAuthCachePort iAuthCachePort,
-            DomainLoginValidator domainLoginValidator
+            DomainLoginValidator domainLoginValidator,
+            LoginValidator loginValidator
     ) {
         return new AuthUseCase(
-                iUserPersistencePort,
-                iPasswordEncoderPort,
                 iAuthCachePort,
-                domainLoginValidator
+                domainLoginValidator,
+                loginValidator
         );
     }
 
@@ -58,12 +57,21 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public LoginValidator loginValidator(
+            IUserPersistencePort iUserPersistencePort,
+            IPasswordEncoderPort iPasswordEncoderPort
+    ) {
+        return new LoginValidator(iUserPersistencePort,
+                iPasswordEncoderPort);
+    }
+
+    @Bean
     public IUserRegisterServicePort registerUserUseCase(
             IUserPersistencePort iUserPersistencePort,
             IPasswordEncoderPort iPasswordEncoderPort,
             UserRegistrationValidator userRegistrationValidator,
             DomainUserValidator domainUserValidator,
-            AssignEmployeeService assignEmployeeService
+            AssignerRestaurantValidator assignEmployeeService
     ) {
         return new RegisterUserUseCase(
                 iUserPersistencePort,
@@ -84,10 +92,10 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public AssignEmployeeService assignEmployeeToRestaurantService(
+    public AssignerRestaurantValidator assignEmployeeToRestaurantService(
             IRestaurantEmployeePersistencePort iRestaurantEmployeePersistencePort
     ) {
-        return new AssignEmployeeService(iRestaurantEmployeePersistencePort);
+        return new AssignerRestaurantValidator(iRestaurantEmployeePersistencePort);
     }
 
     @Bean
