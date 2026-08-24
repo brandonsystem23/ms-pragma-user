@@ -1,4 +1,4 @@
-package com.plazoleta.users_service.domain.service;
+package com.plazoleta.users_service.domain.validation;
 
 import org.junit.jupiter.api.Test;
 

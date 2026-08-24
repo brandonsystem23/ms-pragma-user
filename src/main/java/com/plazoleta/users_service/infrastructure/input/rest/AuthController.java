@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Autenticación", description = "Endpoints para autenticación y gestión de sesión")
 public class AuthController {
 
@@ -24,6 +26,9 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Iniciar sesión", description = "Autentica un usuario y retorna un token de sesión")
     public Mono<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+
+        log.info("Inicio de sessión");
+
         return iAuthHandler.login(request);
     }
 
@@ -32,6 +37,9 @@ public class AuthController {
     @Operation(summary = "Cerrar sesión", description = "Invalida el token actual eliminando la sesión en Redis")
     public Mono<Void> logout(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         String token = BearerTokenExtractor.extract(authorizationHeader);
+
+        log.info("Cerrando sessión");
+
         return iAuthHandler.logout(token);
     }
 }

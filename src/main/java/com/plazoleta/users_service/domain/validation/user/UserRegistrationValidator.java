@@ -1,4 +1,4 @@
-package com.plazoleta.users_service.domain.validation;
+package com.plazoleta.users_service.domain.validation.user;
 
 import com.plazoleta.users_service.domain.exception.DomainErrorCode;
 import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
@@ -15,8 +15,8 @@ public class UserRegistrationValidator {
 
     public Mono<Role> validate(String numberDocument, String email, String roleName) {
         return validateDocument(numberDocument)
-                .then(validateEmail(email))
-                .then(userPersistencePort.findRoleByName(roleName))
+                .then(Mono.defer(() -> validateEmail(email)))
+                .then(Mono.defer(() -> userPersistencePort.findRoleByName(roleName)))
                 .switchIfEmpty(Mono.error(new DomainException(
                         DomainErrorCode.ROLE_NOT_FOUND,
                         "El rol " + roleName + " no existe"

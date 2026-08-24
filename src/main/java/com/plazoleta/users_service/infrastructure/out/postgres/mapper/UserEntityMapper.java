@@ -1,7 +1,9 @@
 package com.plazoleta.users_service.infrastructure.out.postgres.mapper;
 
+import com.plazoleta.users_service.domain.model.RestaurantEmployee;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
+import com.plazoleta.users_service.infrastructure.out.postgres.entity.RestaurantEmployeeEntity;
 import com.plazoleta.users_service.infrastructure.out.postgres.entity.RoleEntity;
 import com.plazoleta.users_service.infrastructure.out.postgres.entity.UserEntity;
 import org.mapstruct.Mapper;
@@ -31,4 +33,7 @@ public interface UserEntityMapper {
     Role toDomain(RoleEntity roleEntity);
 
     RoleEntity toEntity(Role role);
+
+    @Mapping(target = "id", ignore = true)
+    RestaurantEmployeeEntity toEntityRestaurant(RestaurantEmployee restaurantEmployee);
 }

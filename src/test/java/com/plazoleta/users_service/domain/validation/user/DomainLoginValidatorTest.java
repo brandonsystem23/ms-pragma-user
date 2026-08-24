@@ -1,8 +1,7 @@
-package com.plazoleta.users_service.domain.validation;
+package com.plazoleta.users_service.domain.validation.user;
 
 import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.auth.LoginCommand;
-import com.plazoleta.users_service.domain.validation.DomainLoginValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,6 +85,15 @@ class DomainLoginValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
+                () -> domainLoginValidator.validate(command)
+        );
+    }
+
+    @Test
+    void shouldValidateSuccessfully() {
+        LoginCommand command = new LoginCommand("user@test.com", "123456");
+
+        Assertions.assertDoesNotThrow(
                 () -> domainLoginValidator.validate(command)
         );
     }
