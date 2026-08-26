@@ -31,7 +31,7 @@ class DomainUserValidatorTest {
                 RoleNames.OWNER
         );
 
-        Assertions.assertDoesNotThrow(() -> domainUserValidator.validateForRegister(command));
+        Assertions.assertDoesNotThrow(() -> domainUserValidator.validateUserCommand(command));
     }
 
     @Test
@@ -47,7 +47,7 @@ class DomainUserValidatorTest {
                 RoleNames.EMPLOYEE
         );
 
-        Assertions.assertDoesNotThrow(() -> domainUserValidator.validateForRegister(command));
+        Assertions.assertDoesNotThrow(() -> domainUserValidator.validateUserCommand(command));
     }
 
     @Test
@@ -63,7 +63,7 @@ class DomainUserValidatorTest {
                 RoleNames.CLIENT
         );
 
-        Assertions.assertDoesNotThrow(() -> domainUserValidator.validateForRegister(command));
+        Assertions.assertDoesNotThrow(() -> domainUserValidator.validateUserCommand(command));
     }
 
     @Test
@@ -81,7 +81,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
 
     }
@@ -101,7 +101,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
 
     }
@@ -121,7 +121,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
 
     }
@@ -141,7 +141,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
     }
 
@@ -160,7 +160,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
 
     }
@@ -180,7 +180,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
 
     }
@@ -200,7 +200,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
 
     }
@@ -220,7 +220,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
 
     }
@@ -240,7 +240,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
 
     }
@@ -260,7 +260,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
 
     }
@@ -280,7 +280,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
 
     }
@@ -298,7 +298,7 @@ class DomainUserValidatorTest {
                 RoleNames.EMPLOYEE
         );
 
-        Assertions.assertDoesNotThrow(() -> domainUserValidator.validateForRegister(command));
+        Assertions.assertDoesNotThrow(() -> domainUserValidator.validateUserCommand(command));
     }
 
     @Test
@@ -314,7 +314,7 @@ class DomainUserValidatorTest {
                 RoleNames.CLIENT
         );
 
-        Assertions.assertDoesNotThrow(() -> domainUserValidator.validateForRegister(command));
+        Assertions.assertDoesNotThrow(() -> domainUserValidator.validateUserCommand(command));
     }
 
     @Test
@@ -332,7 +332,7 @@ class DomainUserValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainUserValidator.validateForRegister(command)
+                () -> domainUserValidator.validateUserCommand(command)
         );
     }
 

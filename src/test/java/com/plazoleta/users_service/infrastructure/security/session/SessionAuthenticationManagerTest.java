@@ -1,7 +1,7 @@
 package com.plazoleta.users_service.infrastructure.security.session;
 
 import com.plazoleta.users_service.domain.model.auth.AuthSession;
-import com.plazoleta.users_service.domain.spi.IAuthCachePort;
+import com.plazoleta.users_service.domain.spi.IJwtProviderPort;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,8 +10,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.Objects;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -19,7 +21,7 @@ import static org.mockito.Mockito.when;
 class SessionAuthenticationManagerTest {
 
     @Mock
-    private IAuthCachePort authSessionPort;
+    private IJwtProviderPort iJwtProviderPort;
 
     @InjectMocks
     private SessionAuthenticationManager authenticationManager;
@@ -28,16 +30,18 @@ class SessionAuthenticationManagerTest {
     void shouldAuthenticateSuccessfully() {
         AuthSession session = AuthSession.builder()
                 .userId(1L)
+                .fullName("Admin User")
                 .role("ADMINISTRADOR")
                 .numberDocument("123456")
                 .phone("+573001112233")
                 .email("admin@test.com")
                 .build();
 
-        when(authSessionPort.findByToken(anyString())).thenReturn(Mono.just(session));
+        when(iJwtProviderPort.validateAndGetSession(anyString()))
+                .thenReturn(session);
 
         UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(null, "token-123");
+                new UsernamePasswordAuthenticationToken(null, "jwt-token-123");
 
         StepVerifier.create(authenticationManager.authenticate(authentication))
                 .assertNext(result -> {
@@ -46,7 +50,7 @@ class SessionAuthenticationManagerTest {
 
                     Assertions.assertTrue(
                             result.getAuthorities().stream()
-                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRADOR"))
+                                    .anyMatch(a -> Objects.equals(a.getAuthority(), "ROLE_ADMINISTRADOR"))
                     );
                 })
                 .verifyComplete();
@@ -54,7 +58,8 @@ class SessionAuthenticationManagerTest {
 
     @Test
     void shouldFailWhenTokenIsInvalid() {
-        when(authSessionPort.findByToken(anyString())).thenReturn(Mono.empty());
+        when(iJwtProviderPort.validateAndGetSession(anyString()))
+                .thenThrow(new RuntimeException("Token inválido"));
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(null, "invalid-token");

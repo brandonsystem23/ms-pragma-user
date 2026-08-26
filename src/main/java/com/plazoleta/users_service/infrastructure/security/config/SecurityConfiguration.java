@@ -1,7 +1,7 @@
 package com.plazoleta.users_service.infrastructure.security.config;
 
 import com.plazoleta.users_service.domain.model.RoleNames;
-import com.plazoleta.users_service.domain.spi.IAuthCachePort;
+import com.plazoleta.users_service.domain.spi.IJwtProviderPort;
 import com.plazoleta.users_service.infrastructure.security.handler.JsonAccessDeniedHandler;
 import com.plazoleta.users_service.infrastructure.security.handler.JsonAuthenticationEntryPoint;
 import com.plazoleta.users_service.infrastructure.security.session.BearerTokenAuthenticationConverter;
@@ -21,17 +21,16 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final IAuthCachePort iAuthCachePort;
+    private final IJwtProviderPort iJwtProviderPort;
     private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
     private final JsonAccessDeniedHandler jsonAccessDeniedHandler;
-
 
     @Bean
     SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
 
         AuthenticationWebFilter authenticationWebFilter =
                 new AuthenticationWebFilter(
-                        new SessionAuthenticationManager(iAuthCachePort)
+                        new SessionAuthenticationManager(iJwtProviderPort)
                 );
 
         authenticationWebFilter.setServerAuthenticationConverter(
@@ -59,10 +58,12 @@ public class SecurityConfiguration {
                         .pathMatchers(HttpMethod.POST, "/api/v1/users/clients/self-register").permitAll()
                         .pathMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .pathMatchers(HttpMethod.POST, "/api/v1/users/owners").hasRole(RoleNames.ADMIN)
-                        .pathMatchers(HttpMethod.GET, "/api/v1/users/find").hasAnyRole(RoleNames.ADMIN,
-                                RoleNames.EMPLOYEE, RoleNames.CLIENT)
+                        .pathMatchers(HttpMethod.GET, "/api/v1/users/find").hasAnyRole(
+                                RoleNames.ADMIN,
+                                RoleNames.EMPLOYEE,
+                                RoleNames.CLIENT
+                        )
                         .pathMatchers(HttpMethod.POST, "/api/v1/users/employees").hasRole(RoleNames.OWNER)
-                        .pathMatchers(HttpMethod.POST, "/api/v1/users/clients/self-register").hasRole(RoleNames.CLIENT)
                         .anyExchange().authenticated()
                 )
                 .addFilterAt(authenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)

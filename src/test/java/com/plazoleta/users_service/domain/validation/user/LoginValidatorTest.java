@@ -48,7 +48,7 @@ class LoginValidatorTest {
 
         when(iPasswordEncoderPort.matches(anyString(), anyString())).thenReturn(true);
 
-        StepVerifier.create(validator.validate(loginCommand, "test@test.com"))
+        StepVerifier.create(validator.validateUserCredentials(loginCommand, "test@test.com"))
                 .assertNext(response -> {
                     Assertions.assertEquals(1L, response.getId());
                     Assertions.assertEquals("test@test.com", response.getEmail());
@@ -68,7 +68,7 @@ class LoginValidatorTest {
         when(iUserPersistencePort.findByEmail(anyString()))
                 .thenReturn(Mono.empty());
 
-        StepVerifier.create(validator.validate(loginCommand, "test@test.com"))
+        StepVerifier.create(validator.validateUserCredentials(loginCommand, "test@test.com"))
                 .expectErrorSatisfies(error -> {
                     Assertions.assertInstanceOf(DomainException.class, error);
 
@@ -104,7 +104,7 @@ class LoginValidatorTest {
         when(iPasswordEncoderPort.matches(anyString(), anyString()))
                 .thenReturn(false);
 
-        StepVerifier.create(validator.validate(loginCommand, "test@test.com"))
+        StepVerifier.create(validator.validateUserCredentials(loginCommand, "test@test.com"))
                 .expectErrorSatisfies(error -> {
                     Assertions.assertInstanceOf(DomainException.class, error);
 

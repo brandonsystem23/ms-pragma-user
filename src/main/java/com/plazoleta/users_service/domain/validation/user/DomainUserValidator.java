@@ -13,7 +13,7 @@ import com.plazoleta.users_service.domain.validation.ValidationUtils;
 
 public class DomainUserValidator {
 
-    public void validateForRegister(RegisterUserCommand command) {
+    public void validateUserCommand(RegisterUserCommand command) {
         validateCommonFields(command);
         validateRoleSpecificRules(command);
     }

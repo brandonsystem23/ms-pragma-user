@@ -3,14 +3,14 @@ package com.plazoleta.users_service.infrastructure.configuration;
 import com.plazoleta.users_service.domain.api.IAuthServicePort;
 import com.plazoleta.users_service.domain.api.IUserRegisterServicePort;
 import com.plazoleta.users_service.domain.api.IUserRetrieveServicePort;
-import com.plazoleta.users_service.domain.spi.IAuthCachePort;
+import com.plazoleta.users_service.domain.spi.IJwtProviderPort;
 import com.plazoleta.users_service.domain.spi.IPasswordEncoderPort;
 import com.plazoleta.users_service.domain.spi.IRestaurantEmployeePersistencePort;
 import com.plazoleta.users_service.domain.spi.IUserPersistencePort;
-import com.plazoleta.users_service.domain.validation.user.AssignerRestaurantValidator;
 import com.plazoleta.users_service.domain.usecase.AuthUseCase;
 import com.plazoleta.users_service.domain.usecase.RegisterUserUseCase;
 import com.plazoleta.users_service.domain.usecase.RetrieveUserUseCase;
+import com.plazoleta.users_service.domain.validation.user.AssignerRestaurantValidator;
 import com.plazoleta.users_service.domain.validation.user.DomainLoginValidator;
 import com.plazoleta.users_service.domain.validation.user.DomainUserValidator;
 import com.plazoleta.users_service.domain.validation.user.LoginValidator;
@@ -38,12 +38,12 @@ public class BeanConfiguration {
 
     @Bean
     public IAuthServicePort loginUseCase(
-            IAuthCachePort iAuthCachePort,
+            IJwtProviderPort iJwtProviderPort,
             DomainLoginValidator domainLoginValidator,
             LoginValidator loginValidator
     ) {
         return new AuthUseCase(
-                iAuthCachePort,
+                iJwtProviderPort,
                 domainLoginValidator,
                 loginValidator
         );
@@ -61,8 +61,7 @@ public class BeanConfiguration {
             IUserPersistencePort iUserPersistencePort,
             IPasswordEncoderPort iPasswordEncoderPort
     ) {
-        return new LoginValidator(iUserPersistencePort,
-                iPasswordEncoderPort);
+        return new LoginValidator(iUserPersistencePort, iPasswordEncoderPort);
     }
 
     @Bean
@@ -86,9 +85,7 @@ public class BeanConfiguration {
     public IUserRetrieveServicePort retrieveUserUseCase(
             IUserPersistencePort iUserPersistencePort
     ) {
-        return new RetrieveUserUseCase(
-                iUserPersistencePort
-        );
+        return new RetrieveUserUseCase(iUserPersistencePort);
     }
 
     @Bean

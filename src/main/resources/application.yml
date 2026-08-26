@@ -4,21 +4,15 @@ server:
 spring:
   application:
     name: users-service
-
   r2dbc:
     url: ${R2DBC_URL:r2dbc:postgresql://localhost:5432/postgres}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:123456}
 
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      timeout: 60000
-
 auth:
   token:
     expiration: ${AUTH_TOKEN_EXPIRATION:60}
+    secret: ${JWT_SECRET:PragmaJwtSecret_2026_fK2mQ9xL7vN4pR6tY3wZ1aB5cD8eF0gH}
 
 springdoc:
   api-docs:

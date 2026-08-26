@@ -39,6 +39,7 @@ public class UserController {
     @Operation(summary = "Crear empleado", description = "Crea un usuario con role empleado y lo asigna al restaurante. Requiere rol PROPIETARIO")
     public Mono<UserResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest request,
                                              Authentication authentication) {
+
         Long ownerId = (Long) authentication.getPrincipal();
 
         log.info("Petición para crear usuario con rol EMPLEADO");

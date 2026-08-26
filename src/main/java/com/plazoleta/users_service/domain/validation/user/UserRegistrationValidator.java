@@ -13,34 +13,38 @@ public class UserRegistrationValidator {
 
     private final IUserPersistencePort userPersistencePort;
 
-    public Mono<Role> validate(String numberDocument, String email, String roleName) {
+    public Mono<Void> validateUserUniqueness(String numberDocument, String email) {
         return validateDocument(numberDocument)
-                .then(Mono.defer(() -> validateEmail(email)))
-                .then(Mono.defer(() -> userPersistencePort.findRoleByName(roleName)))
+                .then(Mono.defer(() -> validateEmail(email)));
+    }
+
+    public Mono<Role> validateAndRetrieveUserRole(String roleName) {
+        return userPersistencePort.findRoleByName(roleName)
                 .switchIfEmpty(Mono.error(new DomainException(
                         DomainErrorCode.ROLE_NOT_FOUND,
                         "El rol " + roleName + " no existe"
-                )))
-                .map(foundRole -> foundRole);
+                )));
     }
 
     private Mono<Void> validateDocument(String numberDocument) {
         return userPersistencePort.existsByNumberDocument(numberDocument)
-                .flatMap(documentAlreadyExists -> Boolean.TRUE.equals(documentAlreadyExists)
-                        ? Mono.error(new DomainException(
-                        DomainErrorCode.DUPLICATE_DOCUMENT,
-                        DomainErrorMessages.DUPLICATE_DOCUMENT
-                ))
-                        : Mono.empty());
+                .flatMap(documentAlreadyExists ->
+                        Boolean.TRUE.equals(documentAlreadyExists)
+                                ? Mono.error(new DomainException(
+                                DomainErrorCode.DUPLICATE_DOCUMENT,
+                                DomainErrorMessages.DUPLICATE_DOCUMENT
+                        )) : Mono.empty()
+                );
     }
 
     private Mono<Void> validateEmail(String email) {
         return userPersistencePort.existsByEmail(email)
-                .flatMap(emailAlreadyExists -> Boolean.TRUE.equals(emailAlreadyExists)
-                        ? Mono.error(new DomainException(
-                        DomainErrorCode.DUPLICATE_EMAIL,
-                        DomainErrorMessages.DUPLICATE_EMAIL
-                ))
-                        : Mono.empty());
+                .flatMap(emailAlreadyExists ->
+                        Boolean.TRUE.equals(emailAlreadyExists)
+                                ? Mono.error(new DomainException(
+                                DomainErrorCode.DUPLICATE_EMAIL,
+                                DomainErrorMessages.DUPLICATE_EMAIL
+                        )) : Mono.empty()
+                );
     }
 }
