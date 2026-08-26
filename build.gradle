@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.plazoleta'
-version = '2.1.3'
+version = '2.2.3'
 
 java {
 	toolchain {
@@ -111,8 +111,8 @@ jacocoTestReport {
 						'com/plazoleta/users_service/infrastructure/out/postgres/entity/**',
 						'com/plazoleta/users_service/infrastructure/out/postgres/repository/**',
 						'com/plazoleta/users_service/infrastructure/out/postgres/mapper/**',
-						'com/plazoleta/users_service/infrastructure/out/redis/dto/**',
-						'com/plazoleta/users_service/infrastructure/out/redis/mapper/**'
+						'com/plazoleta/users_service/infrastructure/out/jwt/dto/**',
+						'com/plazoleta/users_service/infrastructure/out/jwt/mapper/**'
 				])
 			})
 	)
@@ -141,8 +141,8 @@ jacocoTestCoverageVerification {
 						'com/plazoleta/users_service/infrastructure/out/postgres/entity/**',
 						'com/plazoleta/users_service/infrastructure/out/postgres/repository/**',
 						'com/plazoleta/users_service/infrastructure/out/postgres/mapper/**',
-						'com/plazoleta/users_service/infrastructure/out/redis/dto/**',
-						'com/plazoleta/users_service/infrastructure/out/redis/mapper/**'
+						'com/plazoleta/users_service/infrastructure/out/jwt/dto/**',
+						'com/plazoleta/users_service/infrastructure/out/jwt/mapper/**'
 				])
 			})
 	)

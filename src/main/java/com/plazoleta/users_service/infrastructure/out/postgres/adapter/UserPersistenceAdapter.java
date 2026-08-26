@@ -61,7 +61,8 @@ public class UserPersistenceAdapter implements IUserPersistencePort {
         UserEntity userEntity = userEntityMapper.toEntity(user);
         RoleEntity roleEntity = userEntityMapper.toEntity(user.getRole());
 
-        log.info("Registrando nuevo usuario");
+        log.info("Registrando nuevo usuario. document={}, email={}, role={}",
+                user.getNumberDocument(), user.getEmail(), user.getRole().getName());
 
         return iUserRepository.save(userEntity)
                 .map(savedEntity -> userEntityMapper.toDomain(savedEntity, roleEntity));
