@@ -2,6 +2,7 @@ package com.plazoleta.users_service.infrastructure.security.config;
 
 import com.plazoleta.users_service.domain.model.RoleNames;
 import com.plazoleta.users_service.domain.spi.IJwtProviderPort;
+import com.plazoleta.users_service.infrastructure.out.jwt.mapper.AuthMapper;
 import com.plazoleta.users_service.infrastructure.security.handler.JsonAccessDeniedHandler;
 import com.plazoleta.users_service.infrastructure.security.handler.JsonAuthenticationEntryPoint;
 import com.plazoleta.users_service.infrastructure.security.session.BearerTokenAuthenticationConverter;
@@ -24,13 +25,14 @@ public class SecurityConfiguration {
     private final IJwtProviderPort iJwtProviderPort;
     private final JsonAuthenticationEntryPoint jsonAuthenticationEntryPoint;
     private final JsonAccessDeniedHandler jsonAccessDeniedHandler;
+    private final AuthMapper authMapper;
 
     @Bean
     SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
 
         AuthenticationWebFilter authenticationWebFilter =
                 new AuthenticationWebFilter(
-                        new SessionAuthenticationManager(iJwtProviderPort)
+                        new SessionAuthenticationManager(iJwtProviderPort, authMapper)
                 );
 
         authenticationWebFilter.setServerAuthenticationConverter(

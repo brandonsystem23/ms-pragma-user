@@ -2,6 +2,8 @@ package com.plazoleta.users_service.infrastructure.security.session;
 
 import com.plazoleta.users_service.domain.model.auth.AuthSession;
 import com.plazoleta.users_service.domain.spi.IJwtProviderPort;
+import com.plazoleta.users_service.infrastructure.out.jwt.dto.AuthenticatedUser;
+import com.plazoleta.users_service.infrastructure.out.jwt.mapper.AuthMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,7 @@ import reactor.test.StepVerifier;
 
 import java.util.Objects;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -22,6 +25,9 @@ class SessionAuthenticationManagerTest {
 
     @Mock
     private IJwtProviderPort iJwtProviderPort;
+
+    @Mock
+    private AuthMapper authMapper;
 
     @InjectMocks
     private SessionAuthenticationManager authenticationManager;
@@ -37,8 +43,19 @@ class SessionAuthenticationManagerTest {
                 .email("admin@test.com")
                 .build();
 
+        AuthenticatedUser authenticatedUser = AuthenticatedUser.builder()
+                .userId(1L)
+                .fullName("Admin User")
+                .role("ADMINISTRADOR")
+                .numberDocument("123456")
+                .phone("+573001112233")
+                .email("admin@test.com")
+                .build();
+
         when(iJwtProviderPort.validateAndGetSession(anyString()))
                 .thenReturn(session);
+
+        when(authMapper.toDto(any())).thenReturn(authenticatedUser);
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(null, "jwt-token-123");
