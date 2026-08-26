@@ -1,7 +1,8 @@
 package com.plazoleta.users_service.infrastructure.security.session;
 
-import com.plazoleta.users_service.domain.model.auth.AuthSession;
 import com.plazoleta.users_service.domain.spi.IJwtProviderPort;
+import com.plazoleta.users_service.infrastructure.out.jwt.dto.AuthenticatedUser;
+import com.plazoleta.users_service.infrastructure.out.jwt.mapper.AuthMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -16,13 +17,14 @@ import java.util.List;
 public class SessionAuthenticationManager implements ReactiveAuthenticationManager {
 
     private final IJwtProviderPort iJwtProviderPort;
+    private final AuthMapper authMapper;
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
         return Mono.fromCallable(() -> {
             try {
                 String token = authentication.getCredentials().toString();
-                AuthSession session = iJwtProviderPort.validateAndGetSession(token);
+                AuthenticatedUser session = authMapper.toDto(iJwtProviderPort.validateAndGetSession(token));
                 return buildAuthentication(session);
             } catch (Exception ex) {
                 throw new BadCredentialsException("Token inválido o expirado", ex);
@@ -30,7 +32,7 @@ public class SessionAuthenticationManager implements ReactiveAuthenticationManag
         });
     }
 
-    private Authentication buildAuthentication(AuthSession session) {
+    private Authentication buildAuthentication(AuthenticatedUser session) {
         return new UsernamePasswordAuthenticationToken(
                 session.userId(),
                 null,
