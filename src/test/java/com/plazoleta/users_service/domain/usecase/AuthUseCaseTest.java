@@ -5,8 +5,9 @@ import com.plazoleta.users_service.domain.exception.DomainErrorMessages;
 import com.plazoleta.users_service.domain.exception.DomainException;
 import com.plazoleta.users_service.domain.model.Role;
 import com.plazoleta.users_service.domain.model.User;
+import com.plazoleta.users_service.domain.model.auth.AuthSession;
 import com.plazoleta.users_service.domain.model.auth.LoginCommand;
-import com.plazoleta.users_service.domain.spi.IAuthCachePort;
+import com.plazoleta.users_service.domain.spi.IJwtProviderPort;
 import com.plazoleta.users_service.domain.validation.user.DomainLoginValidator;
 import com.plazoleta.users_service.domain.validation.user.LoginValidator;
 import org.junit.jupiter.api.Assertions;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.when;
 class AuthUseCaseTest {
 
     @Mock
-    private IAuthCachePort iAuthCachePort;
+    private IJwtProviderPort iJwtProviderPort;
 
     @Mock
     private LoginValidator loginValidator;
@@ -50,16 +51,20 @@ class AuthUseCaseTest {
                 .email("ana@test.com")
                 .password("encoded-password")
                 .status(true)
-                .role(Role.builder().id(1L).name("ADMINISTRADOR").description("Administrador").build())
+                .role(Role.builder()
+                        .id(1L)
+                        .name("ADMINISTRADOR")
+                        .description("Administrador")
+                        .build())
                 .build();
-        doNothing().when(domainLoginValidator).validate(any());
-        when(loginValidator.validate(any(), anyString())).thenReturn(Mono.just(user));
 
-        when(iAuthCachePort.createSession(any())).thenReturn(Mono.just("token-123"));
+        doNothing().when(domainLoginValidator).validateLoginCommand(any());
+        when(loginValidator.validateUserCredentials(any(), anyString())).thenReturn(Mono.just(user));
+        when(iJwtProviderPort.generateToken(any(AuthSession.class))).thenReturn("jwt-token-123");
 
         StepVerifier.create(authUseCase.login(new LoginCommand("  ANA@test.com ", "123456")))
                 .assertNext(result -> {
-                    Assertions.assertEquals("token-123", result.token());
+                    Assertions.assertEquals("jwt-token-123", result.token());
                     Assertions.assertEquals("Bearer", result.tokenType());
                     Assertions.assertEquals(10L, result.userId());
                     Assertions.assertEquals("ADMINISTRADOR", result.role());
@@ -69,17 +74,15 @@ class AuthUseCaseTest {
 
     @Test
     void shouldFailWhenUserNotFound() {
-
-        doNothing().when(domainLoginValidator).validate(any());
-        when(loginValidator.validate(any(), anyString())).thenThrow(new DomainException(
+        doNothing().when(domainLoginValidator).validateLoginCommand(any());
+        when(loginValidator.validateUserCredentials(any(), anyString())).thenReturn(Mono.error(new DomainException(
                 DomainErrorCode.USER_NOT_FOUND,
                 DomainErrorMessages.USER_NOT_FOUND
-        ));
+        )));
 
         StepVerifier.create(authUseCase.login(new LoginCommand("notfound@test.com", "123456")))
                 .expectErrorSatisfies(error -> {
                     Assertions.assertInstanceOf(DomainException.class, error);
-
                     DomainException exception = (DomainException) error;
                     Assertions.assertEquals(DomainErrorCode.USER_NOT_FOUND, exception.getCode());
                     Assertions.assertEquals(DomainErrorMessages.USER_NOT_FOUND, exception.getMessage());
@@ -89,13 +92,14 @@ class AuthUseCaseTest {
 
     @Test
     void shouldFailWhenEmailIsNull() {
-        doThrow(new DomainException(DomainErrorCode.VALIDATION_ERROR, DomainErrorMessages.EMAIL_REQUIRED))
-                .when(domainLoginValidator).validate(any());
+        doThrow(new DomainException(
+                DomainErrorCode.VALIDATION_ERROR,
+                DomainErrorMessages.EMAIL_REQUIRED
+        )).when(domainLoginValidator).validateLoginCommand(any());
 
         StepVerifier.create(authUseCase.login(new LoginCommand(null, "123456")))
                 .expectErrorSatisfies(error -> {
                     Assertions.assertInstanceOf(DomainException.class, error);
-
                     DomainException exception = (DomainException) error;
                     Assertions.assertEquals(DomainErrorCode.VALIDATION_ERROR, exception.getCode());
                     Assertions.assertEquals(DomainErrorMessages.EMAIL_REQUIRED, exception.getMessage());
@@ -105,33 +109,19 @@ class AuthUseCaseTest {
 
     @Test
     void shouldFailWhenPasswordIsInvalid() {
-
-        doNothing().when(domainLoginValidator).validate(any());
-        when(loginValidator.validate(any(), anyString())).thenThrow(new DomainException(
+        doNothing().when(domainLoginValidator).validateLoginCommand(any());
+        when(loginValidator.validateUserCredentials(any(), anyString())).thenReturn(Mono.error(new DomainException(
                 DomainErrorCode.INVALID_CREDENTIALS,
                 DomainErrorMessages.INVALID_CREDENTIALS
-        ));
+        )));
 
         StepVerifier.create(authUseCase.login(new LoginCommand("ana@test.com", "wrong-password")))
                 .expectErrorSatisfies(error -> {
                     Assertions.assertInstanceOf(DomainException.class, error);
-
                     DomainException exception = (DomainException) error;
                     Assertions.assertEquals(DomainErrorCode.INVALID_CREDENTIALS, exception.getCode());
                     Assertions.assertEquals(DomainErrorMessages.INVALID_CREDENTIALS, exception.getMessage());
                 })
                 .verify();
-
-
     }
-
-    @Test
-    void logout() {
-
-        when(iAuthCachePort.deleteByToken(anyString())).thenReturn(Mono.empty());
-
-        StepVerifier.create(authUseCase.logout("Bearer token"))
-                .verifyComplete();
-    }
-
 }

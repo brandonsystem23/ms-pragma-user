@@ -16,7 +16,7 @@ public class LoginValidator {
     private final IUserPersistencePort iUserPersistencePort;
     private final IPasswordEncoderPort iPasswordEncoderPort;
 
-    public Mono<User> validate(LoginCommand loginCommand, String email) {
+    public Mono<User> validateUserCredentials(LoginCommand loginCommand, String email) {
         return validateEmail(email)
                 .filter(user -> iPasswordEncoderPort.matches(loginCommand.password(), user.getPassword()))
                 .switchIfEmpty(Mono.error(new DomainException(

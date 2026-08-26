@@ -7,6 +7,4 @@ import reactor.core.publisher.Mono;
 public interface IAuthHandler {
 
     Mono<LoginResponse> login(LoginRequest request);
-
-    Mono<Void> logout(String token);
 }

@@ -27,24 +27,15 @@ class UserRegistrationValidatorTest {
     private UserRegistrationValidator validator;
 
     @Test
-    void shouldValidateSuccessfully() {
-        Role role = Role.builder()
-                .id(1L)
-                .name("CLIENTE")
-                .description("Rol cliente")
-                .build();
+    void shouldValidateUserUniquenessSuccessfully() {
 
         when(userPersistencePort.existsByNumberDocument(anyString()))
                 .thenReturn(Mono.just(false));
+
         when(userPersistencePort.existsByEmail(anyString()))
                 .thenReturn(Mono.just(false));
-        when(userPersistencePort.findRoleByName(anyString()))
-                .thenReturn(Mono.just(role));
 
-        StepVerifier.create(validator.validate("123456", "test@test.com", "CLIENTE"))
-                .assertNext(response ->
-                        Assertions.assertEquals("CLIENTE", response.getName())
-                )
+        StepVerifier.create(validator.validateUserUniqueness("123456", "test@test.com"))
                 .verifyComplete();
     }
 
@@ -54,23 +45,15 @@ class UserRegistrationValidatorTest {
         when(userPersistencePort.existsByNumberDocument(anyString()))
                 .thenReturn(Mono.just(true));
 
-        StepVerifier.create(
-                        validator.validate(
-                                "123456",
-                                "test@test.com",
-                                "CLIENTE"))
+        StepVerifier.create(validator.validateUserUniqueness("123456", "test@test.com"))
                 .expectErrorSatisfies(error -> {
                     Assertions.assertInstanceOf(DomainException.class, error);
 
                     DomainException exception = (DomainException) error;
 
-                    Assertions.assertEquals(
-                            DomainErrorCode.DUPLICATE_DOCUMENT,
-                            exception.getCode());
+                    Assertions.assertEquals(DomainErrorCode.DUPLICATE_DOCUMENT, exception.getCode());
 
-                    Assertions.assertEquals(
-                            DomainErrorMessages.DUPLICATE_DOCUMENT,
-                            exception.getMessage());
+                    Assertions.assertEquals(DomainErrorMessages.DUPLICATE_DOCUMENT, exception.getMessage());
                 })
                 .verify();
     }
@@ -84,46 +67,54 @@ class UserRegistrationValidatorTest {
         when(userPersistencePort.existsByEmail(anyString()))
                 .thenReturn(Mono.just(true));
 
-        StepVerifier.create(
-                        validator.validate(
-                                "123456",
-                                "test@test.com",
-                                "CLIENTE"))
+        StepVerifier.create(validator.validateUserUniqueness("123456", "test@test.com"))
                 .expectErrorSatisfies(error -> {
                     Assertions.assertInstanceOf(DomainException.class, error);
 
                     DomainException exception = (DomainException) error;
 
-                    Assertions.assertEquals(
-                            DomainErrorCode.DUPLICATE_EMAIL,
-                            exception.getCode());
+                    Assertions.assertEquals(DomainErrorCode.DUPLICATE_EMAIL, exception.getCode());
 
-                    Assertions.assertEquals(
-                            DomainErrorMessages.DUPLICATE_EMAIL,
-                            exception.getMessage());
+                    Assertions.assertEquals(DomainErrorMessages.DUPLICATE_EMAIL, exception.getMessage());
                 })
                 .verify();
     }
 
     @Test
+    void shouldValidateUserRoleSuccessfully() {
+
+        Role role = Role.builder()
+                .id(1L)
+                .name("CLIENTE")
+                .description("Rol cliente")
+                .build();
+
+        when(userPersistencePort.findRoleByName("CLIENTE"))
+                .thenReturn(Mono.just(role));
+
+        StepVerifier.create(validator.validateAndRetrieveUserRole("CLIENTE"))
+                .assertNext(response ->
+                        Assertions.assertEquals("CLIENTE", response.getName())
+                )
+                .verifyComplete();
+    }
+
+    @Test
     void shouldFailWhenRoleDoesNotExist() {
-        String numberDocument = "12345678";
-        String email = "test@mail.com";
+
         String roleName = "ROLE_INEXISTENTE";
 
-        when(userPersistencePort.existsByNumberDocument(numberDocument))
-                .thenReturn(Mono.just(false));
-        when(userPersistencePort.existsByEmail(email))
-                .thenReturn(Mono.just(false));
         when(userPersistencePort.findRoleByName(roleName))
                 .thenReturn(Mono.empty());
 
-        StepVerifier.create(validator.validate(numberDocument, email, roleName))
+        StepVerifier.create(validator.validateAndRetrieveUserRole(roleName))
                 .expectErrorSatisfies(error -> {
                     Assertions.assertInstanceOf(DomainException.class, error);
 
                     DomainException exception = (DomainException) error;
+
                     Assertions.assertEquals(DomainErrorCode.ROLE_NOT_FOUND, exception.getCode());
+
                     Assertions.assertEquals("El rol ROLE_INEXISTENTE no existe", exception.getMessage());
                 })
                 .verify();
