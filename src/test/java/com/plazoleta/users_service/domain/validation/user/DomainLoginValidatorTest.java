@@ -21,7 +21,7 @@ class DomainLoginValidatorTest {
         LoginCommand command = new LoginCommand(null, "123456");
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainLoginValidator.validate(command)
+                () -> domainLoginValidator.validateLoginCommand(command)
         );
     }
 
@@ -31,7 +31,7 @@ class DomainLoginValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainLoginValidator.validate(command)
+                () -> domainLoginValidator.validateLoginCommand(command)
         );
     }
 
@@ -41,7 +41,7 @@ class DomainLoginValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainLoginValidator.validate(command)
+                () -> domainLoginValidator.validateLoginCommand(command)
         );
 
     }
@@ -53,7 +53,7 @@ class DomainLoginValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainLoginValidator.validate(command)
+                () -> domainLoginValidator.validateLoginCommand(command)
         );
 
     }
@@ -64,7 +64,7 @@ class DomainLoginValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainLoginValidator.validate(command)
+                () -> domainLoginValidator.validateLoginCommand(command)
         );
 
     }
@@ -75,7 +75,7 @@ class DomainLoginValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainLoginValidator.validate(command)
+                () -> domainLoginValidator.validateLoginCommand(command)
         );
     }
 
@@ -85,7 +85,7 @@ class DomainLoginValidatorTest {
 
         Assertions.assertThrows(
                 DomainException.class,
-                () -> domainLoginValidator.validate(command)
+                () -> domainLoginValidator.validateLoginCommand(command)
         );
     }
 
@@ -94,7 +94,7 @@ class DomainLoginValidatorTest {
         LoginCommand command = new LoginCommand("user@test.com", "123456");
 
         Assertions.assertDoesNotThrow(
-                () -> domainLoginValidator.validate(command)
+                () -> domainLoginValidator.validateLoginCommand(command)
         );
     }
 }

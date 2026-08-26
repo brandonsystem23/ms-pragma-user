@@ -85,7 +85,10 @@ class RegisterUserUseCaseTest {
                 .role(role)
                 .build();
 
-        when(userRegistrationValidator.validate(anyString(), anyString(), anyString()))
+        when(userRegistrationValidator.validateUserUniqueness(anyString(), anyString()))
+                .thenReturn(Mono.empty());
+
+        when(userRegistrationValidator.validateAndRetrieveUserRole(anyString()))
                 .thenReturn(Mono.just(role));
 
         when(iPasswordEncoderPort.encode(anyString())).thenReturn("encoded-password");
@@ -134,7 +137,10 @@ class RegisterUserUseCaseTest {
                 .role(role)
                 .build();
 
-        when(userRegistrationValidator.validate(anyString(), anyString(), anyString()))
+        when(userRegistrationValidator.validateUserUniqueness(anyString(), anyString()))
+                .thenReturn(Mono.empty());
+
+        when(userRegistrationValidator.validateAndRetrieveUserRole(anyString()))
                 .thenReturn(Mono.just(role));
 
         when(iPasswordEncoderPort.encode(anyString()))

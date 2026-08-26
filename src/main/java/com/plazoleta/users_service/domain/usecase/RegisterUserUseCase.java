@@ -28,16 +28,13 @@ public class RegisterUserUseCase implements IUserRegisterServicePort {
 
             String normalizedEmail = EmailNormalizer.normalize(command.email());
 
-            domainUserValidator.validateForRegister(command);
+            domainUserValidator.validateUserCommand(command);
 
             Mono<Long> restaurantIdMono = (ownerId != null) ? assignerRestaurantValidator
                     .validateOwnerHasRestaurant(ownerId) : Mono.empty();
 
-            return userRegistrationValidator.validate(
-                            command.numberDocument(),
-                            normalizedEmail,
-                            command.roleName()
-                    )
+            return userRegistrationValidator.validateUserUniqueness(command.numberDocument(), normalizedEmail)
+                    .then(Mono.defer(() -> userRegistrationValidator.validateAndRetrieveUserRole(command.roleName())))
                     .flatMap(role -> {
                         String passwordEncode = iPasswordEncoderPort.encode(command.password());
                         User user = UserBuilder.buildUser(command, normalizedEmail, role, passwordEncode);

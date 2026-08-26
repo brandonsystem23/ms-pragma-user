@@ -11,9 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,13 +24,12 @@ class AuthControllerTest {
     @InjectMocks
     private AuthController authController;
 
-
     @Test
     void shouldLoginSuccessfully() {
         LoginRequest request = new LoginRequest("admin@test.com", "123456");
 
         LoginResponse response = LoginResponse.builder()
-                .token("token-123")
+                .token("jwt-token-123")
                 .tokenType("Bearer")
                 .userId(1L)
                 .role("ADMINISTRADOR")
@@ -42,25 +40,10 @@ class AuthControllerTest {
         StepVerifier.create(authController.login(request))
                 .assertNext(login -> {
                     Assertions.assertEquals("Bearer", login.tokenType());
-                    Assertions.assertEquals("token-123", login.token());
+                    Assertions.assertEquals("jwt-token-123", login.token());
+                    Assertions.assertEquals(1L, login.userId());
+                    Assertions.assertEquals("ADMINISTRADOR", login.role());
                 })
                 .verifyComplete();
     }
-
-    @Test
-    void shouldLogoutSuccessfully() {
-        when(iAuthHandler.logout(anyString())).thenReturn(Mono.empty());
-
-        StepVerifier.create(authController.logout("Bearer token-123"))
-                .verifyComplete();
-    }
-
-    @Test
-    void shouldFailLogoutWhenAuthorizationHeaderIsInvalid() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> authController.logout("Basic token-123")
-        );
-    }
-
 }

@@ -9,7 +9,7 @@ import com.plazoleta.users_service.domain.validation.ValidationUtils;
 
 public class DomainLoginValidator {
 
-    public void validate(LoginCommand command) {
+    public void validateLoginCommand(LoginCommand command) {
         if (ValidationUtils.isBlank(command.email())) {
             throw new DomainException(DomainErrorCode.VALIDATION_ERROR, DomainErrorMessages.EMAIL_REQUIRED);
         }
